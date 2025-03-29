@@ -27,7 +27,7 @@ os.makedirs(output, exist_ok=True)
 
 # 4. Execute command
 ext = ARCH_ARR[args.arch]['ext']
-command = ['odin', 'run', './src/', f'--out:{output}/{args.target}.{ext}', '-debug']
+command = ['odin', 'build', './src/', f'--out:{output}/{args.target}.{ext}', '-debug']
 
 try:
     subprocess.run(command)

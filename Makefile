@@ -2,7 +2,7 @@
 TARGET := rune
 
 build:
-	@py ./scripts/build-debug.py win $(TARGET)
+	@py ./scripts/build.py win $(TARGET)
 
 clean:
 	@py ./scripts/clean.py
