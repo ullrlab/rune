@@ -14,11 +14,15 @@ YELLOW := "\033[33m"
 BLUE   := "\033[34m"
 
 error :: proc(msg: string) {
-    fmt.println(RED, msg, RESET)
+    msg := fmt.aprintf("%s%s%s", RED, msg, RESET)
+    fmt.println(msg)
+    delete(msg)
 }
 
 warn :: proc(msg: string) {
-    fmt.println(YELLOW, msg, RESET)
+    msg := fmt.aprintf("%s%s%s", YELLOW, msg, RESET)
+    fmt.println(msg)
+    delete(msg)
 }
 
 info :: proc(msg: string = "") {

@@ -1,3 +1,10 @@
+/*
+    List of predefined variables
+
+    mode:   Build mode                  ["debug", "release"]
+    arch:   Targeted architecture       ["x86", "x86_64", "arm", "aarch64", "riscv64"]
+*/
+
 package cmds
 
 import "core:fmt"
@@ -14,8 +21,6 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
         return
     }
 
-    target := schema.configs.target
-    output := schema.configs.output
     profile, profile_ok := get_profile(schema, profile_name)
     if !profile_ok {
         msg := fmt.aprintf("Failed to find \"%s\" in the list of profiles", profile_name)
@@ -23,9 +28,10 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
         delete(msg)
         return
     }
-    
 
-    fmt.println(profile)
+    output_dir := parse_output(schema.configs, profile)
+    
+    log.warn(output_dir)
 
 }
 
@@ -47,4 +53,20 @@ get_profile :: proc(schema: parsing.Schema, name: string) -> (parsing.SchemaProf
     }
 
     return {}, false
+}
+
+@(private="file")
+parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProfile) -> string {
+    output := configs.output
+
+    fmt.println(output)
+
+    output, _ = strings.replace(output, "{mode}", profile.mode, -1)
+    output, _ = strings.replace(output, "{arch}", profile.arch, -1)
+
+    if len(output) > 0 && output[len(output)-1] != '/' {
+        output = strings.concatenate({output, "/"})
+    }
+
+    return output
 }
