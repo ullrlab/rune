@@ -5,11 +5,15 @@ import "core:fmt"
 import "core:os"
 import "core:strings"
 
+import "parsing"
+
 main :: proc() {
-    version := "0.1.0"
+    version := "0.1.1"
+
+    parsing.process_root_file()
 
     if len(os.args) < 2 {
-        // build the project
+        // Find default method in rune.yml
         return
     }
 
