@@ -6,7 +6,7 @@ import "core:os"
 import "core:strings"
 
 main :: proc() {
-    version := "0.0.1"
+    version := "0.1.0"
 
     if len(os.args) < 2 {
         // build the project
@@ -25,10 +25,12 @@ main :: proc() {
         case "-h":
             print_help()
         case "build":
-            // build the project
+            process_build()
+        case "run":
+            process_run()
         case "test":
-            // test the project
-        case "new":
-            // create a new project and initialize using a template
+            process_test()
+        case "init":
+            process_init()
     }
 }
