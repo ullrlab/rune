@@ -8,6 +8,7 @@
 package cmds
 
 import "core:fmt"
+import "core:os"
 import "core:strings"
 
 import "../log"
@@ -30,6 +31,7 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     }
 
     output_dir := parse_output(schema.configs, profile)
+    create_output(output_dir)
     
     log.warn(output_dir)
 
@@ -67,4 +69,17 @@ parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProf
     }
 
     return output
+}
+
+@(private="file")
+create_output :: proc(output: string) -> bool {
+    if !os.exists(output) {
+        err := os.make_directory(output)
+        if err != nil {
+            log.error("Error occurred while trying to create output directory")
+            return false
+        }
+    }
+
+    return true
 }
