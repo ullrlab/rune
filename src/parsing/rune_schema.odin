@@ -30,7 +30,7 @@ SchemaProfile :: struct {
     mode:               string          `json:"mode"`,
     entry:              string          `json:"entry"`,
     pre_build:          SchemaPreBuild  `json:"preBuild"`,
-    post_build:         SchemaPostBuild        `json:"postBuild"`
+    post_build:         SchemaPostBuild `json:"postBuild"`
 }
 
 ExecuteAction :: distinct []string
