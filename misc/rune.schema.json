@@ -19,51 +19,43 @@
                     "arch": { "type": "string", "enum": ["x86", "x86_64", "arm", "aarch64", "riscv64"], "description": "Architecture used by the profile" },
                     "mode": { "type": "string", "enum": ["debug", "release"], "description": "Build mode used by the profile" },
                     "entry": { "type": "string", "description": "Entry point of the program. Should point to a directory" },
-                    "preBuildActions": {
-                        "type": "array",
-                        "description": "Action taken before the build happens",
-                        "items": { "type": "string"}
+                    "preBuild": {
+                        "scripts": {
+                            "type": "array",
+                            "description": "Series of scripts to run",
+                            "items": { "type": "string", "description": "Name of the script to reference" }
+                        }
                     },
-                    "postBuildActions": {
-                        "type": "array",
+                    "postBuild": {
+                        "type": "object",
                         "description": "Actions taken after the build happened",
-                        "items": { "type": "string"}
+                        "properties": {
+                            "scripts": {
+                                "type": "array",
+                                "description": "Series of scripts to run",
+                                "items": { "type": "string", "description": "Name of the script to reference" }
+                            },
+                            "copy": {
+                                "type": "array",
+                                "description": "List of files and directory to copy",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "from": { "type": "string", "description": "Source to copy from" },
+                                        "to": { "type": "string", "description": "Destination in the output directory" }
+                                    },
+                                    "required": ["from", "to"]
+                                }
+                            }
+                        }
                     }
                 },
                 "required": ["name", "arch", "mode", "entry"]
             }
         },
-        "actions": {
-            "type": "array",
-            "description": "Series of action that are available for pre and post build events",
-            "items": {
-                "type": "object",
-                "description": "Actions to name",
-                "properties": {
-                    "name": { "type": "string", "description": "Name of the action" },
-                    "execute": {
-                        "type": "array",
-                        "description": "Execute a series of command sequentially",
-                        "items": {
-                            "type": "array",
-                            "description": "Command to execute",
-                            "items": { "type": "string" }
-                        }
-                    },
-                    "copy": {
-                        "type": "array",
-                        "description": "Copy files to output directory",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "from": { "type": "string", "description": "Source of the item to copy" },
-                                "to": { "type": "string", "description": "Destination of the item to copy relative to the output directory" }
-                            } 
-                        }
-                    }
-                },
-                "required": ["name"]
-            }
+        "scripts": {
+            "type": "object",
+            "description": "Series of scripts defines as \"name\": [command]'"
         }
 	},
 	"required": ["configs", "profiles"]

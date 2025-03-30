@@ -37,4 +37,6 @@ main :: proc() {
         case "init":
             process_init()
     }
+
+    free_all(context.allocator)
 }

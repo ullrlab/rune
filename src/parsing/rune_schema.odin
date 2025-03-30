@@ -2,36 +2,42 @@ package parsing
 
 import "core:encoding/json"
 
+CopyAction :: struct {
+    to:     string  `json:"to"`,
+    from:   string  `json:"from"`
+}
+
+ScriptAction :: distinct string
+
 SchemaConfigs :: struct {
     target:             string  `json:"target"`,
     output:             string  `json:"target"`,
     default_profile:    string  `json:"defaultProfile"`
 }
 
-SchemaProfile :: struct {
-    name:               string      `json:"name"`,
-    arch:               string      `json:"arch"`,
-    mode:               string      `json::"mode"`,
-    entry:              string      `json:"entry"`,
-    pre_build_actions:  []string    `json:"preBuildActions"`,
-    post_build_actions: []string    `json:"postBuildActions"`
+SchemaPreBuild :: struct {
+    scripts:    []ScriptAction  `json:"scripts"`
 }
 
-CopyAction :: struct {
-    to:     string  `json:"to"`,
-    from:   string  `json:"from"`
+SchemaPostBuild :: struct {
+    scripts:    []ScriptAction  `json:"scripts"`,
+    copy:       []CopyAction    `json:"copy"`
+}
+
+SchemaProfile :: struct {
+    name:               string          `json:"name"`,
+    arch:               string          `json:"arch"`,
+    mode:               string          `json:"mode"`,
+    entry:              string          `json:"entry"`,
+    pre_build:          SchemaPreBuild  `json:"preBuild"`,
+    post_build:         SchemaPostBuild        `json:"postBuild"`
 }
 
 ExecuteAction :: distinct []string
 
-SchemaAction :: struct {
-    name:       string             `json:"name"`,
-    copy:       []CopyAction       `json:"copy"`,
-    execute:    []ExecuteAction    `json:"execute"`
-}
 
 Schema :: struct {
-    configs:    SchemaConfigs   `json:"configs"`,
-    profiles:   []SchemaProfile `json:"profiles"`,
-    actions:    []SchemaAction  `json:"actions"`
+    configs:    SchemaConfigs       `json:"configs"`,
+    profiles:   []SchemaProfile     `json:"profiles"`,
+    scripts:    map[string]string   `json:"scripts"`
 }
