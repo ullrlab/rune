@@ -4,10 +4,8 @@ import "core:encoding/json"
 import "core:fmt"
 import "core:os"
 
-process_root_file :: proc() {
+process_root_file :: proc() -> Schema {
     rune_file := "./rune.json"
-
-    test := context.allocator
 
     data, ok := os.read_entire_file_from_filename(rune_file)
     assert(ok, "No rune.json file was found in the active directory")
@@ -16,7 +14,5 @@ process_root_file :: proc() {
     schema: Schema
     json.unmarshal(data, &schema)
 
-    fmt.println(&schema)
-
-    // NEED TO DELETE STRINGS!
+    return schema
 }

@@ -1,4 +1,4 @@
-package main
+package cmds
 
 process_run :: proc() {
     

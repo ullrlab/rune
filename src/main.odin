@@ -5,37 +5,42 @@ import "core:fmt"
 import "core:os"
 import "core:strings"
 
+import "cmds"
+import "log"
 import "parsing"
 
 main :: proc() {
-    version := "0.1.1"
+    version := "0.1.2"
 
-    parsing.process_root_file()
+    schema := parsing.process_root_file()
 
     if len(os.args) < 2 {
-        // Find default method in rune.yml
-        return
+        cmd, ok := cmds.get_default_profile(schema)
+        if !ok {
+            return
+        }
+        
     }
 
     cmd := strings.to_lower(os.args[1])
 
     switch cmd {
         case "--version":
-            fmt.println(version)
+            log.info(version)
         case "-v":
-            fmt.println(version)
+            log.info(version)
         case "--help":
-            print_help()
+            cmds.print_help()
         case "-h":
-            print_help()
+            cmds.print_help()
         case "build":
-            process_build()
+            cmds.process_build()
         case "run":
-            process_run()
+            cmds.process_run()
         case "test":
-            process_test()
+            cmds.process_test()
         case "init":
-            process_init()
+            cmds.process_init()
     }
 
     free_all(context.allocator)
