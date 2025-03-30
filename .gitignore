@@ -1,3 +1,5 @@
 bin/
 
 rune.json
+*.exe
+*.pdb

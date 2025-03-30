@@ -15,6 +15,13 @@ import "../log"
 import "../parsing"
 import "../utils"
 
+BuildData :: struct {
+    debug:  bool,
+    entry:  string,
+    output: string,
+    flags:  []string
+}
+
 // Process the "build [profile?]" command.
 process_build :: proc(args: []string, schema: parsing.Schema) {
     profile_name, default_ok := get_default_profile(schema)
@@ -31,8 +38,8 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
         return
     }
 
-    output_dir := parse_output(schema.configs, profile)
-    output_ok := create_output(output_dir)
+    output := parse_output(schema.configs, profile)
+    output_ok := create_output(output)
     if !output_ok {
         log.error("Error occurred while trying to create output directory")
         return
@@ -42,6 +49,15 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     if !ext_ok {
         return
     }
+
+    output = strings.concatenate({output, schema.configs.target, ext})
+
+    execute_build(BuildData{
+        debug = profile.debug,
+        entry = profile.entry,
+        output = output,
+        flags = profile.flags
+    })
 }
 
 @(private="file")
@@ -122,4 +138,31 @@ get_extension :: proc(arch: string, mode: string) -> (string, bool) {
     }
 
     return ext, true
+}
+
+@(private="file")
+execute_build :: proc(data: BuildData) {
+    cmd := "odin build"
+
+    if data.entry != "" {
+        cmd = strings.join({cmd, data.entry}, " ")
+    }
+
+    if data.output != "" {
+        out := fmt.aprintf("-out:%s", data.output)
+        cmd = strings.join({cmd, out}, " ")
+        delete(out)
+    }
+
+    if data.debug {
+        cmd = strings.join({cmd, "-debug"}, " ")
+    }
+    
+    if len(data.flags) > 0{
+        for flag in data.flags {
+            cmd = strings.join({cmd, flag}, " ")
+        }
+    }
+
+    fmt.println(cmd)
 }
