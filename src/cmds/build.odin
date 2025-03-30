@@ -8,8 +8,8 @@
 package cmds
 
 import "core:fmt"
-import os2 "core:/os"
 import os "core:os/os2"
+import "core:time"
 import "core:strings"
 
 import "../log"
@@ -36,7 +36,6 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     if !profile_ok {
         msg := fmt.aprintf("Failed to find \"%s\" in the list of profiles", profile_name)
         log.error(msg)
-        delete(msg)
         return
     }
 
@@ -53,11 +52,38 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
 
     output = strings.concatenate({output, schema.configs.target, ext})
 
-    execute_build(BuildData{
+    build_err, build_time := execute_build(BuildData{
         entry = profile.entry,
         output = output,
         flags = profile.flags
     })
+    defer delete(build_err)
+    
+    log.info()
+    if build_err != "" {
+        msg := fmt.aprintf("Build failed in %.3f seconds\n", build_time)
+        log.error(msg)
+        log.info(build_err)
+        return
+    } else {
+        msg := fmt.aprintf("Build completed in %.3f seconds", build_time)
+        log.success(msg)
+    }
+
+    if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
+        post_build_err, post_build_time := execute_post_build(profile.post_build)
+        defer delete(post_build_err)
+        log.info()
+
+        if post_build_err != "" {
+            msg := fmt.aprintf("Post build failed in %.3f seconds\n", post_build_time)
+            log.error(msg)
+            log.info(post_build_err)
+        } else {
+            msg := fmt.aprintf("Post build completed in %.3f seconds\n", post_build_time)
+            log.success(msg)
+        }
+    }
 }
 
 @(private="file")
@@ -118,7 +144,6 @@ create_output :: proc(output: string) -> bool {
             if err != nil {
                 msg := fmt.aprintf("Error occurred while trying to create output directory %s: %s", curr, err)
                 log.error(msg)
-                delete(msg)
                 return false
             }
         }
@@ -133,7 +158,6 @@ get_extension :: proc(arch: string, mode: string) -> (string, bool) {
     if !platform_supported {
         msg := fmt.aprintf("Architecture \"%s\" is not supported", arch)
         log.error(msg)
-        delete(msg)
         return "", false
     }
 
@@ -154,7 +178,6 @@ get_extension :: proc(arch: string, mode: string) -> (string, bool) {
     if !ext_ok {
         msg := fmt.aprintf("Build mode \"%s\" is not supported for architecture \"%s\"", mode, arch)
         log.error(msg)
-        delete(msg)
         return "", false
     }
 
@@ -162,7 +185,9 @@ get_extension :: proc(arch: string, mode: string) -> (string, bool) {
 }
 
 @(private="file")
-execute_build :: proc(data: BuildData) {
+execute_build :: proc(data: BuildData) -> (string, f64) {
+    start_time := time.now()
+
     cmd := "odin build"
 
     if data.entry != "" {
@@ -172,7 +197,6 @@ execute_build :: proc(data: BuildData) {
     if data.output != "" {
         out := fmt.aprintf("-out:%s", data.output)
         cmd = strings.join({cmd, out}, " ")
-        delete(out)
     }
     
     if len(data.flags) > 0{
@@ -181,25 +205,92 @@ execute_build :: proc(data: BuildData) {
         }
     }
 
+    log.info(cmd)
+
     r, w, _ := os.pipe()
-    defer os.close(r)
+    p, err := os.process_start({
+        command = strings.split(cmd, " "),
+        stdout = w,
+        stderr = w,
+    })
+    if err != nil {
+        return fmt.aprintf("Error starting process:", err), time.duration_seconds(time.since(start_time))
+    }
+    defer os.close(w)
 
-    p: os.Process
-    {
-        defer os.close(w)
-        p, err := os.process_start({
-            command = strings.split(cmd, " "),
-            stdout = w,
-            stderr = w
-        })
+    state: os.Process_State
+    state, err = os.process_wait(p)
 
-        if err != nil {
-            fmt.println(err)
+    if err != nil {
+        return fmt.aprintf("Failed to build project: %s", err), time.duration_seconds(time.since(start_time))
+    }
+    
+    return "", time.duration_seconds(time.since(start_time))
+}
+
+@(private="file")
+execute_post_build :: proc(post_build: parsing.SchemaPostBuild) -> (string, f64) {
+    start_time := time.now()
+
+    for copy in post_build.copy {
+        copy_err := process_copy(copy.from, copy.from, copy.to)
+        if copy_err != "" {
+            return copy_err, time.duration_seconds(time.since(start_time))
         }
     }
 
-    output, _ := os.read_entire_file(r, context.temp_allocator)
-    _, _ = os.process_wait(p)
-    fmt.print(string(output))
-    fmt.print("Build completed")
+    return "", time.duration_seconds(time.since(start_time))
+}
+
+@(private="file")
+process_copy :: proc(original_from: string, from: string, to: string) -> string {
+    if os.is_dir(from) {
+
+        extra := strings.trim_prefix(from, original_from)
+        new_dir := strings.concatenate({to, extra})
+        if !os.exists(new_dir) {
+            err := os.make_directory(new_dir)
+            if err != nil {
+                return fmt.aprintf("Failed to create directory %s: %s", new_dir, err)
+            }
+        }
+
+        dir, err := os.open(from)
+        if err != nil {
+            return fmt.aprintf("Failed to open directory %s: %s", from, err)
+        }
+        defer os.close(dir)
+
+        files: []os.File_Info
+        files, err = os.read_dir(dir, -1, context.allocator)
+        if err != nil {
+            return fmt.aprintf("Failed to read files from %s: %s", from, err)
+        }
+
+        copy_err: string
+        for file in files {
+            name, _ := strings.replace(file.fullpath, "\\", "/", -1)
+            copy_err = process_copy(original_from, name, to)
+            if copy_err != "" {
+                return copy_err
+            }
+        }
+
+        return ""
+    }
+
+    extra := strings.trim_prefix(from, original_from)
+    to := strings.concatenate({to, extra})
+    
+    copy_err := os.copy_file(to, from)
+    if copy_err != nil{
+        return fmt.aprintf("Failed to copy: %s", copy_err)
+    }
+
+    return ""
+}
+
+@(private="file")
+create_dir :: proc() {
+
 }
