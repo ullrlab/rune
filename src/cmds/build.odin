@@ -8,6 +8,7 @@
 package cmds
 
 import "core:fmt"
+import os2 "core:/os"
 import os "core:os/os2"
 import "core:strings"
 
@@ -98,7 +99,7 @@ parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProf
 @(private="file")
 create_output :: proc(output: string) -> bool {
     dirs := strings.split(output, "/")
-    curr := "./"
+    curr := "."
     for dir in dirs {
         curr = strings.concatenate({curr, "/", dir})
         if !os.exists(curr) {
@@ -111,8 +112,6 @@ create_output :: proc(output: string) -> bool {
             }
         }
     }
-
-    fmt.println(curr)
 
     return true
 }
@@ -178,16 +177,18 @@ execute_build :: proc(data: BuildData) {
     r, w, _ := os.pipe()
     defer os.close(r)
 
-    log.info(cmd)
-
     p: os.Process
     {
         defer os.close(w)
-        p, _ = os.process_start({
-            command = {cmd},
+        p, err := os.process_start({
+            command = strings.split(cmd, " "),
             stdout = w,
             stderr = w
         })
+
+        if err != nil {
+            fmt.println(err)
+        }
     }
 
     output, _ := os.read_entire_file(r, context.temp_allocator)
