@@ -24,7 +24,7 @@
                         "description": "Action taken before the build happens",
                         "items": { "type": "string"}
                     },
-                    "postBuildAction": {
+                    "postBuildActions": {
                         "type": "array",
                         "description": "Actions taken after the build happened",
                         "items": { "type": "string"}
