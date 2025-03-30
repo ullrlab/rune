@@ -17,7 +17,6 @@ import "../parsing"
 import "../utils"
 
 BuildData :: struct {
-    debug:  bool,
     entry:  string,
     output: string,
     flags:  []string
@@ -55,7 +54,6 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     output = strings.concatenate({output, schema.configs.target, ext})
 
     execute_build(BuildData{
-        debug = profile.debug,
         entry = profile.entry,
         output = output,
         flags = profile.flags
@@ -86,7 +84,9 @@ get_profile :: proc(schema: parsing.Schema, name: string) -> (parsing.SchemaProf
 parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProfile) -> string {
     output := configs.output
 
-    output, _ = strings.replace(output, "{config}", profile.debug ? "debug" : "release", -1)
+    is_debug := check_debug(profile.flags)
+    
+    output, _ = strings.replace(output, "{config}", is_debug ? "debug" : "release", -1)
     output, _ = strings.replace(output, "{arch}", profile.arch, -1)
 
     if len(output) > 0 && output[len(output)-1] != '/' {
@@ -94,6 +94,17 @@ parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProf
     }
 
     return output
+}
+
+@(private="file")
+check_debug :: proc(flags: []string) -> bool {
+    for flag in flags {
+        if flag == "-debug" {
+            return true
+        }
+    }
+
+    return false
 }
 
 @(private="file")
@@ -162,10 +173,6 @@ execute_build :: proc(data: BuildData) {
         out := fmt.aprintf("-out:%s", data.output)
         cmd = strings.join({cmd, out}, " ")
         delete(out)
-    }
-
-    if data.debug {
-        cmd = strings.join({cmd, "-debug"}, " ")
     }
     
     if len(data.flags) > 0{

@@ -46,7 +46,6 @@
                         ],
                         "description": "Architecture used by the profile"
                     },
-                    "debug": { "type": "boolean", "description": "Whether we build the project in debug mode or not" },
                     "entry": { "type": "string", "description": "Entry point of the program. Should point to your program's root directory" },
                     "buildFlags": {
                         "type": "array",

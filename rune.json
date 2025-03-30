@@ -3,15 +3,17 @@
     "configs": {
         "target": "rune",
         "output": "bin/{config}/{arch}",
-        "profile": "release",
+        "profile": "debug",
         "mode": "exe"
     },
     "profiles": [
         {
             "name": "debug",
             "arch": "windows_amd64",
-            "debug": true,
-            "entry": "src"
+            "entry": "src",
+            "buildFlags": [
+                "-debug"
+            ]
         },
         {
             "name": "release",
@@ -20,6 +22,5 @@
         }
     ],
     "scripts": {
-        "execute": "asdf movie"
     }
 }

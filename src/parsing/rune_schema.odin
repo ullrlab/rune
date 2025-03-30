@@ -28,9 +28,8 @@ SchemaPostBuild :: struct {
 SchemaProfile :: struct {
     name:       string          `json:"name"`,
     arch:       string          `json:"arch"`,
-    debug:      bool            `json:"mode"`,
     entry:      string          `json:"entry"`,
-    flags:      []string        `json:"flags"`,
+    flags:      []string        `json:"buildFlags"`,
     pre_build:  SchemaPreBuild  `json:"preBuild"`,
     post_build: SchemaPostBuild `json:"postBuild"`
 }
