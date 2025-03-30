@@ -31,6 +31,29 @@
                                 }
                             }
                         }
+                    },
+                    "post-build": {
+                        "type": "array",
+                        "description": "Steps taken after the build happened",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "execute": {
+                                    "type": "array",
+                                    "items": { "type": "string" }
+                                },
+                                "copy": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "from": { "type": "string", "description": "Source of the item to copy" },
+                                            "to": { "type": "string", "description": "Destination of the item to copy relative to the output directory" }
+                                        } 
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "required": ["name", "arch", "mode", "entry"]
