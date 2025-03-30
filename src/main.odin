@@ -38,6 +38,4 @@ main :: proc() {
         case "init":
             cmds.process_init()
     }
-
-    free_all(context.allocator)
 }

@@ -1,0 +1,25 @@
+{
+    "$schema": "./misc/rune.schema.json",
+    "configs": {
+        "target": "rune",
+        "output": "bin/{config}/{arch}",
+        "profile": "release",
+        "mode": "exe"
+    },
+    "profiles": [
+        {
+            "name": "debug",
+            "arch": "windows_amd64",
+            "debug": true,
+            "entry": "src"
+        },
+        {
+            "name": "release",
+            "arch": "windows_amd64",
+            "entry": "src"
+        }
+    ],
+    "scripts": {
+        "execute": "asdf movie"
+    }
+}
