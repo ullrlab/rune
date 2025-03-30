@@ -59,8 +59,6 @@ get_profile :: proc(schema: parsing.Schema, name: string) -> (parsing.SchemaProf
 parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProfile) -> string {
     output := configs.output
 
-    fmt.println(output)
-
     output, _ = strings.replace(output, "{mode}", profile.mode, -1)
     output, _ = strings.replace(output, "{arch}", profile.arch, -1)
 
