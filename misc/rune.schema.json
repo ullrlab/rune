@@ -19,55 +19,50 @@
                     "arch": { "type": "string", "enum": ["x86", "x86_64", "arm", "aarch64", "riscv64"], "description": "Architecture used by the profile" },
                     "mode": { "type": "string", "enum": ["debug", "release"], "description": "Build mode used by the profile" },
                     "entry": { "type": "string", "description": "Entry point of the program. Should point to a directory" },
-                    "pre-build": {
+                    "preBuildActions": {
                         "type": "array",
-                        "description": "Steps taken before the build happens",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "execute": {
-                                    "type": "array",
-                                    "description": "Execute a series of command sequentially",
-                                    "items": {
-                                        "type": "array",
-                                        "description": "Command to execute",
-                                        "items": { "type": "string" }
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Action taken before the build happens",
+                        "items": { "type": "string"}
                     },
-                    "post-build": {
+                    "postBuildAction": {
                         "type": "array",
-                        "description": "Steps taken after the build happened",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "execute": {
-                                    "type": "array",
-                                    "description": "Execute a series of command sequentially",
-                                    "items": {
-                                        "type": "array",
-                                        "description": "Command to execute",
-                                        "items": { "type": "string" }
-                                    }
-                                },
-                                "copy": {
-                                    "type": "array",
-                                    "description": "Copy files to output directory",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "from": { "type": "string", "description": "Source of the item to copy" },
-                                            "to": { "type": "string", "description": "Destination of the item to copy relative to the output directory" }
-                                        } 
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Actions taken after the build happened",
+                        "items": { "type": "string"}
                     }
                 },
                 "required": ["name", "arch", "mode", "entry"]
+            }
+        },
+        "actions": {
+            "type": "array",
+            "description": "Series of action that are available for pre and post build events",
+            "items": {
+                "type": "object",
+                "description": "Actions to name",
+                "properties": {
+                    "name": { "type": "string", "description": "Name of the action" },
+                    "execute": {
+                        "type": "array",
+                        "description": "Execute a series of command sequentially",
+                        "items": {
+                            "type": "array",
+                            "description": "Command to execute",
+                            "items": { "type": "string" }
+                        }
+                    },
+                    "copy": {
+                        "type": "array",
+                        "description": "Copy files to output directory",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "from": { "type": "string", "description": "Source of the item to copy" },
+                                "to": { "type": "string", "description": "Destination of the item to copy relative to the output directory" }
+                            } 
+                        }
+                    }
+                },
+                "required": ["name"]
             }
         }
 	},
