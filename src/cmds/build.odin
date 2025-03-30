@@ -31,7 +31,11 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     }
 
     output_dir := parse_output(schema.configs, profile)
-    create_output(output_dir)
+    output_ok := create_output(output_dir)
+    if !output_ok {
+        log.error("Error occurred while trying to create output directory")
+        return
+    }
     
     log.warn(output_dir)
 
@@ -76,7 +80,6 @@ create_output :: proc(output: string) -> bool {
     if !os.exists(output) {
         err := os.make_directory(output)
         if err != nil {
-            log.error("Error occurred while trying to create output directory")
             return false
         }
     }

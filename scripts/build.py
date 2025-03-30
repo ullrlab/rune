@@ -3,7 +3,7 @@ import argparse
 import subprocess
 
 WIN_DATA = {
-    'platform': 'win32_x64',
+    'platform': 'windows_amd64',
     'ext': 'exe',
     'sdl3': 'libs/win32_x64/SDL3.dll'
 }
