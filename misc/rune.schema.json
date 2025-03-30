@@ -6,9 +6,29 @@
             "properties": {
                 "target": { "type": "string", "description": "Name of the build target" },
                 "output": { "type": "string", "description": "Output directory" },
-                "profile": { "type": "string", "description": "Default profile to use" }
+                "profile": { "type": "string", "description": "Default profile to use" },
+                "mode": {
+                    "type": "string",
+                    "enum": [
+                        "exe",
+                        "test",
+                        "dll",
+                        "shared",
+                        "dynamic",
+                        "lib",
+                        "static",
+                        "obj",
+                        "object",
+                        "assembly",
+                        "assembler",
+                        "asm",
+                        "llvm-ir",
+                        "llvm"
+                    ],
+                    "description": "Project build-mode. Defines the output of the project"
+                }
             },
-            "required": ["target", "output"]
+            "required": ["target", "output", "mode"]
         },
         "profiles": {
             "type": "array",
@@ -26,8 +46,15 @@
                         ],
                         "description": "Architecture used by the profile"
                     },
-                    "mode": { "type": "string", "enum": ["debug", "release"], "description": "Build mode used by the profile" },
+                    "debug": { "type": "boolean", "description": "Whether we build the project in debug mode or not" },
                     "entry": { "type": "string", "description": "Entry point of the program. Should point to a directory" },
+                    "buildFlags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "Extra build flags that can be passed to the compiler"
+                        }
+                    },
                     "preBuild": {
                         "scripts": {
                             "type": "array",
@@ -59,7 +86,7 @@
                         }
                     }
                 },
-                "required": ["name", "arch", "mode", "entry"]
+                "required": ["name", "arch", "entry"]
             }
         },
         "scripts": {

@@ -1,8 +1,8 @@
 /*
     List of predefined variables
 
-    mode:   Build mode                  ["debug", "release"]
-    arch:   Targeted architecture       ["x86", "x86_64", "arm", "aarch64", "riscv64"]
+    config:     Build mode
+    arch:       Targeted architecture
 */
 
 package cmds
@@ -65,7 +65,7 @@ get_profile :: proc(schema: parsing.Schema, name: string) -> (parsing.SchemaProf
 parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProfile) -> string {
     output := configs.output
 
-    output, _ = strings.replace(output, "{mode}", profile.mode, -1)
+    output, _ = strings.replace(output, "{config}", profile.debug ? "debug" : "release", -1)
     output, _ = strings.replace(output, "{arch}", profile.arch, -1)
 
     if len(output) > 0 && output[len(output)-1] != '/' {

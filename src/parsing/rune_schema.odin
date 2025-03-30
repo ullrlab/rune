@@ -12,7 +12,8 @@ ScriptAction :: distinct string
 SchemaConfigs :: struct {
     target:     string  `json:"target"`,
     output:     string  `json:"target"`,
-    profile:    string  `json:"profile"`
+    profile:    string  `json:"profile"`,
+    mode:       string  `json:"mode"`
 }
 
 SchemaPreBuild :: struct {
@@ -25,12 +26,13 @@ SchemaPostBuild :: struct {
 }
 
 SchemaProfile :: struct {
-    name:               string          `json:"name"`,
-    arch:               string          `json:"arch"`,
-    mode:               string          `json:"mode"`,
-    entry:              string          `json:"entry"`,
-    pre_build:          SchemaPreBuild  `json:"preBuild"`,
-    post_build:         SchemaPostBuild `json:"postBuild"`
+    name:       string          `json:"name"`,
+    arch:       string          `json:"arch"`,
+    debug:      bool            `json:"mode"`,
+    entry:      string          `json:"entry"`,
+    flags:      []string        `json:"flags"`,
+    pre_build:  SchemaPreBuild  `json:"preBuild"`,
+    post_build: SchemaPostBuild `json:"postBuild"`
 }
 
 ExecuteAction :: distinct []string
