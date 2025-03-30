@@ -30,7 +30,7 @@ main :: proc() {
         case "-h":
             cmds.print_help()
         case "build":
-            cmds.process_build()
+            cmds.process_build(os.args[1:], schema)
         case "run":
             cmds.process_run()
         case "test":

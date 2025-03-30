@@ -8,7 +8,8 @@ Odin build system
 ### build options
 
 - post build actions
-- pre build actions
-- actions
+    - scripts
     - copy
-    - execute
+- pre build actions
+    - scripts
+- scripts

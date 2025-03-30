@@ -6,7 +6,7 @@
             "properties": {
                 "target": { "type": "string", "description": "Name of the build target" },
                 "output": { "type": "string", "description": "Output directory" },
-                "defaultProfile": { "type": "string", "description": "Default profile to use" }
+                "profile": { "type": "string", "description": "Default profile to use" }
             },
             "required": ["target", "output"]
         },

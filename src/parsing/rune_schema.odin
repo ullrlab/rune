@@ -10,9 +10,9 @@ CopyAction :: struct {
 ScriptAction :: distinct string
 
 SchemaConfigs :: struct {
-    target:             string  `json:"target"`,
-    output:             string  `json:"target"`,
-    default_profile:    string  `json:"defaultProfile"`
+    target:     string  `json:"target"`,
+    output:     string  `json:"target"`,
+    profile:    string  `json:"profile"`
 }
 
 SchemaPreBuild :: struct {
