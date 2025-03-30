@@ -8,7 +8,7 @@
 package cmds
 
 import "core:fmt"
-import "core:os"
+import os "core:os/os2"
 import "core:strings"
 
 import "../log"
@@ -41,7 +41,6 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     output := parse_output(schema.configs, profile)
     output_ok := create_output(output)
     if !output_ok {
-        log.error("Error occurred while trying to create output directory")
         return
     }
     
@@ -58,6 +57,8 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
         output = output,
         flags = profile.flags
     })
+
+    delete(args)
 }
 
 @(private="file")
@@ -96,12 +97,22 @@ parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProf
 
 @(private="file")
 create_output :: proc(output: string) -> bool {
-    if !os.exists(output) {
-        err := os.make_directory(output)
-        if err != nil {
-            return false
+    dirs := strings.split(output, "/")
+    curr := "./"
+    for dir in dirs {
+        curr = strings.concatenate({curr, "/", dir})
+        if !os.exists(curr) {
+            err := os.make_directory(curr)
+            if err != nil {
+                msg := fmt.aprintf("Error occurred while trying to create output directory %s: %s", curr, err)
+                log.error(msg)
+                delete(msg)
+                return false
+            }
         }
     }
+
+    fmt.println(curr)
 
     return true
 }
@@ -164,5 +175,23 @@ execute_build :: proc(data: BuildData) {
         }
     }
 
-    fmt.println(cmd)
+    r, w, _ := os.pipe()
+    defer os.close(r)
+
+    log.info(cmd)
+
+    p: os.Process
+    {
+        defer os.close(w)
+        p, _ = os.process_start({
+            command = {cmd},
+            stdout = w,
+            stderr = w
+        })
+    }
+
+    output, _ := os.read_entire_file(r, context.temp_allocator)
+    _, _ = os.process_wait(p)
+    fmt.print(string(output))
+    fmt.print("Build completed")
 }
