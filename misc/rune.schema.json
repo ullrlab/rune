@@ -27,7 +27,12 @@
                             "properties": {
                                 "execute": {
                                     "type": "array",
-                                    "items": { "type": "string" }
+                                    "description": "Execute a series of command sequentially",
+                                    "items": {
+                                        "type": "array",
+                                        "description": "Command to execute",
+                                        "items": { "type": "string" }
+                                    }
                                 }
                             }
                         }
@@ -40,10 +45,16 @@
                             "properties": {
                                 "execute": {
                                     "type": "array",
-                                    "items": { "type": "string" }
+                                    "description": "Execute a series of command sequentially",
+                                    "items": {
+                                        "type": "array",
+                                        "description": "Command to execute",
+                                        "items": { "type": "string" }
+                                    }
                                 },
                                 "copy": {
                                     "type": "array",
+                                    "description": "Copy files to output directory",
                                     "items": {
                                         "type": "object",
                                         "properties": {
