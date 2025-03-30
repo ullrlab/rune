@@ -15,4 +15,7 @@ process_root_file :: proc() {
     json.unmarshal(data, &schema)
 
     fmt.println(&schema)
+
+    // NEED TO DELETE STRINGS!
+    delete(schema.configs.default_profile)
 }
