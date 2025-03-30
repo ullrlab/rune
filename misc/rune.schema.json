@@ -18,7 +18,20 @@
                     "name": { "type": "string", "description": "Name of the profile" },
                     "arch": { "type": "string", "enum": ["win", "mac", "linux"], "description": "Architecture used by the profile" },
                     "mode": { "type": "string", "enum": ["debug", "release"], "description": "Build mode used by the profile" },
-                    "entry": { "type": "string", "description": "Entry point of the program. Should point to a directory" }
+                    "entry": { "type": "string", "description": "Entry point of the program. Should point to a directory" },
+                    "pre-build": {
+                        "type": "array",
+                        "description": "Steps taken before the build happens",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "execute": {
+                                    "type": "array",
+                                    "items": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
                 },
                 "required": ["name", "arch", "mode", "entry"]
             }
