@@ -10,18 +10,14 @@ import "log"
 import "parsing"
 
 main :: proc() {
-    version := "0.1.2"
-
-    schema := parsing.process_root_file()
+    version := "0.1.3"
 
     if len(os.args) < 2 {
-        cmd, ok := cmds.get_default_profile(schema)
-        if !ok {
-            return
-        }
-        
+        cmds.print_help()
+        return
     }
 
+    schema := parsing.process_root_file()
     cmd := strings.to_lower(os.args[1])
 
     switch cmd {
