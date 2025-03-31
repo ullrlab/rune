@@ -4,34 +4,29 @@ import "core:fmt"
 import os "core:os/os2"
 import "core:strings"
 
+import "../log"
+
 process_run :: proc() {
     
 }
 
 process_script :: proc(script: string) -> string {
-    r, w, _ := os.pipe()
-    defer os.close(r)
-    p, err := os.process_start({
-        command = strings.split(script, " "),
-        stdout = w,
-        stderr = w,
-    })
+    state, stdout, stderr, err := os.process_exec({
+        command = strings.split(script, " ")
+    }, context.allocator)
+    defer delete(stdout)
+    defer delete(stderr)
 
     if err != nil {
-        return fmt.aprintf("Error starting process: %s", err)
-    }
-    defer os.close(w)
-
-    state: os.Process_State
-    _, err = os.process_wait(p)
-
-    if err != nil {
-        return fmt.aprintf("Failed run script: %s", err)
+        return fmt.aprintf("Script %s could not be run", script)
     }
 
-    err = os.process_close(p)
-    if err != nil {
-        return fmt.aprintf("Failed to close build process: %s", err)
+    if len(stderr) > 0 {
+        return string(stdout)
+    }
+
+    if len(stdout) > 0 {
+        log.info(string(stdout))
     }
 
     return ""

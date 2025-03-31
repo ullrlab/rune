@@ -59,7 +59,6 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     })
     defer delete(build_err)
     
-    log.info()
     if build_err != "" {
         msg := fmt.aprintf("Build failed in %.3f seconds\n", build_time)
         log.error(msg)
@@ -73,7 +72,6 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
         post_build_err, post_build_time := execute_post_build(profile.post_build, schema.scripts)
         defer delete(post_build_err)
-        log.info()
 
         if post_build_err != "" {
             msg := fmt.aprintf("Post build failed in %.3f seconds\n", post_build_time)

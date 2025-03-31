@@ -27,6 +27,6 @@
         }
     ],
     "scripts": {
-        "echo": "echo hello world"
+        "echo": "py ./scripts/print.py"
     }
 }
