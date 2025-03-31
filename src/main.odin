@@ -17,8 +17,13 @@ main :: proc() {
         return
     }
 
-    schema := parsing.process_root_file()
+    schema, has_schema := parsing.read_root_file()
     cmd := strings.to_lower(os.args[1])
+
+    if !has_schema && cmd != "new" {
+        log.error("rune.json does not exists. Run \"rune new [build_mode] [target]\"")
+        return;
+    }
 
     switch cmd {
         case "--version":

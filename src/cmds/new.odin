@@ -20,7 +20,8 @@ process_new :: proc(args: []string) {
 
     arch := strings.to_lower(fmt.aprintf("%s_%s", ODIN_OS, ODIN_ARCH))
 
-    schema := parsing.Schema {
+    schema := parsing.SchemaJon {
+        schema = "https://raw.githubusercontent.com/ullrlab/rune/refs/heads/main/misc/rune.schema.json",
         configs = {
             type = args[1],
             output = "bin/{config}/{arch}",
@@ -35,15 +36,17 @@ process_new :: proc(args: []string) {
             }
         }
     }
+
+    parsing.write_root_file(schema)
 }
 
 @(private="file")
 validate_build_mode :: proc(args: []string) -> bool {
     if len(args) < 2 {
-        log.info("Please specify build mode by running \"rune init [build_mode] [target_name]\"")
-        log.info("Valid build modes:")
+        log.error("Please specify build mode by running \"rune init [build_mode] [target_name]\"")
+        log.error("Valid build modes:")
         for type in utils.project_types {
-            log.info(fmt.aprintf("\t%s", type))
+            log.error(fmt.aprintf("\t%s", type))
         }
         return false
     }
@@ -60,7 +63,7 @@ validate_build_mode :: proc(args: []string) -> bool {
 @(private="file")
 validate_target :: proc(args: []string) -> bool {
     if len(args) < 3 {
-        log.info("Please specify a target name by running \"rune init [build_mode] [target_name]\"")
+        log.error("Please specify a target name by running \"rune init [build_mode] [target_name]\"")
         return false
     }
 
