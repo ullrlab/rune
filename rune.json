@@ -18,9 +18,15 @@
         {
             "name": "release",
             "arch": "windows_amd64",
-            "entry": "src"
+            "entry": "src",
+            "postBuild": {
+                "scripts": [
+                    "echo"
+                ]
+            }
         }
     ],
     "scripts": {
+        "echo": "echo hello world"
     }
 }

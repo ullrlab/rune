@@ -80,7 +80,7 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
             log.error(msg)
             log.info(post_build_err)
         } else {
-            msg := fmt.aprintf("Post build completed in %.3f seconds\n", post_build_time)
+            msg := fmt.aprintf("Post build completed in %.3f seconds", post_build_time)
             log.success(msg)
         }
     }
@@ -288,9 +288,4 @@ process_copy :: proc(original_from: string, from: string, to: string) -> string 
     }
 
     return ""
-}
-
-@(private="file")
-create_dir :: proc() {
-
 }
