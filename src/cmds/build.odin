@@ -205,16 +205,16 @@ execute_build :: proc(data: BuildData) -> (string, f64) {
 
     log.info(cmd)
 
-    script_ok := process_script(cmd)
-    if script_ok != "" {
-        return script_ok, time.duration_seconds(time.since(start_time))
+    script_err := process_script(cmd)
+    if script_err != "" {
+        return script_err, time.duration_seconds(time.since(start_time))
     }
     
     return "", time.duration_seconds(time.since(start_time))
 }
 
 @(private="file")
-execute_post_build :: proc(post_build: parsing.SchemaPostBuild, scripts: parsing.SchemaScripts) -> (string, f64) {
+execute_post_build :: proc(post_build: parsing.SchemaPostBuild, script_list: parsing.SchemaScripts) -> (string, f64) {
     start_time := time.now()
 
     for copy in post_build.copy {
@@ -224,20 +224,29 @@ execute_post_build :: proc(post_build: parsing.SchemaPostBuild, scripts: parsing
         }
     }
 
-    for script_name in post_build.scripts {
-        
-        script := scripts[script_name] or_else ""
-        if script == "" {
-            return fmt.aprintf("Script \"%s\" is not defined in rune.json", script), time.duration_seconds(time.since(start_time))
-        }
-
-        script_ok := process_script(script)
-        if script_ok != "" {
-            return fmt.aprintf("Failed to execute script \"%s\":\n%s", script, script_ok), time.duration_seconds(time.since(start_time))
-        }
+    script_err := execute_scripts(post_build.scripts, script_list)
+    if script_err != "" {
+        return script_err, time.duration_seconds(time.since(start_time))
     }
 
     return "", time.duration_seconds(time.since(start_time))
+}
+
+@(private="file")
+execute_scripts :: proc(step_scripts: []string, script_list: parsing.SchemaScripts) -> string {
+    for script_name in step_scripts {
+        script := script_list[script_name] or_else ""
+        if script == "" {
+            return fmt.aprintf("Script \"%s\" is not defined in rune.json", script)
+        }
+
+        script_err := process_script(script)
+        if script_err != "" {
+            return fmt.aprintf("Failed to execute script \"%s\":\n%s", script, script_err)
+        }
+    }
+
+    return ""
 }
 
 @(private="file")
