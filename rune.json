@@ -19,6 +19,11 @@
             "name": "release",
             "arch": "windows_amd64",
             "entry": "src",
+            "preBuild": {
+                "scripts": [
+                    "echo"
+                ]
+            },
             "postBuild": {
                 "scripts": [
                     "echo"

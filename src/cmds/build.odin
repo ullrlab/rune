@@ -52,6 +52,20 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
 
     output = strings.concatenate({output, schema.configs.target, ext})
 
+    if len(profile.pre_build.scripts) > 0 {
+        pre_build_err, pre_build_time := execute_pre_build(profile.pre_build.scripts, schema.scripts)
+        defer delete(pre_build_err)
+
+        if pre_build_err != "" {
+            msg := fmt.aprintf("Pre build failed in %.3f seconds\n", pre_build_time)
+            log.error(msg)
+            log.info(pre_build_err)
+        } else {
+            msg := fmt.aprintf("Pre build completed in %.3f seconds", pre_build_time)
+            log.success(msg)
+        }
+    }
+
     build_err, build_time := execute_build(BuildData{
         entry = profile.entry,
         output = output,
@@ -210,6 +224,18 @@ execute_build :: proc(data: BuildData) -> (string, f64) {
         return script_err, time.duration_seconds(time.since(start_time))
     }
     
+    return "", time.duration_seconds(time.since(start_time))
+}
+
+@(private="file")
+execute_pre_build :: proc(step_scripts: []string, script_list: parsing.SchemaScripts) -> (string, f64) {
+    start_time := time.now()
+
+    script_err := execute_scripts(step_scripts, script_list)
+    if script_err != "" {
+        return script_err, time.duration_seconds(time.since(start_time))
+    }
+
     return "", time.duration_seconds(time.since(start_time))
 }
 
