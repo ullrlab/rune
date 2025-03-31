@@ -3,18 +3,10 @@
     "configs": {
         "target": "rune",
         "output": "bin/{config}/{arch}",
-        "profile": "debug",
-        "mode": "exe"
+        "profile": "release",
+        "type": "exe"
     },
     "profiles": [
-        {
-            "name": "debug",
-            "arch": "windows_amd64",
-            "entry": "src",
-            "buildFlags": [
-                "-debug"
-            ]
-        },
         {
             "name": "release",
             "arch": "windows_amd64",

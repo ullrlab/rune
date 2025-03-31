@@ -12,6 +12,23 @@ Platform :: enum {
     Unknown
 }
 
+project_types := []string {
+    "exe",
+    "test",
+    "dll",
+    "shared",
+    "dynamic",
+    "lib",
+    "static",
+    "obj",
+    "object",
+    "asm",
+    "assembly",
+    "assembler",
+    "llvm",
+    "llvm-ir" 
+}
+
 // Given a target architecture, returns the appropriate platform
 get_platform :: proc(arch: string) -> (Platform, bool) {
     switch arch {
@@ -97,7 +114,7 @@ get_mac_ext :: proc(mode: string) -> (string, bool) {
 This function returns the appropriate extension based on the output type and
 the targeted platform.
 */
-get_extension :: proc(arch: string, mode: string) -> (string, bool) {
+get_extension :: proc(arch: string, type: string) -> (string, bool) {
     platform, platform_supported := get_platform(arch)
     if !platform_supported {
         msg := fmt.aprintf("Architecture \"%s\" is not supported", arch)
@@ -110,17 +127,17 @@ get_extension :: proc(arch: string, mode: string) -> (string, bool) {
 
     switch platform {
         case .Windows:
-            ext, ext_ok = get_windows_ext(mode)
+            ext, ext_ok = get_windows_ext(type)
         case .Unix:
-            ext, ext_ok = get_unix_ext(mode)
+            ext, ext_ok = get_unix_ext(type)
         case .Mac:
-            ext, ext_ok = get_mac_ext(mode)
+            ext, ext_ok = get_mac_ext(type)
         case .Unknown:
             ext_ok := false
     }
 
     if !ext_ok {
-        msg := fmt.aprintf("Build mode \"%s\" is not supported for architecture \"%s\"", mode, arch)
+        msg := fmt.aprintf("Build mode \"%s\" is not supported for architecture \"%s\"", type, arch)
         log.error(msg)
         return "", false
     }

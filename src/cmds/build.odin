@@ -44,7 +44,7 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
         return
     }
     
-    ext, ext_ok := utils.get_extension(profile.arch, schema.configs.mode)
+    ext, ext_ok := utils.get_extension(profile.arch, schema.configs.type)
     if !ext_ok {
         return
     }

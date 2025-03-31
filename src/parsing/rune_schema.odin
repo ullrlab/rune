@@ -11,7 +11,7 @@ SchemaConfigs :: struct {
     target:     string  `json:"target"`,
     output:     string  `json:"target"`,
     profile:    string  `json:"profile"`,
-    mode:       string  `json:"mode"`
+    type:       string  `json:"type"`
 }
 
 SchemaPreBuild :: struct {
