@@ -19,26 +19,23 @@ SchemaPreBuild :: struct {
 }
 
 SchemaPostBuild :: struct {
+    copy:       []CopyAction    `json:"copy"`,
     scripts:    []string  `json:"scripts"`,
-    copy:       []CopyAction    `json:"copy"`
 }
 
 SchemaProfile :: struct {
+    pre_build:  SchemaPreBuild  `json:"preBuild"`,
+    post_build: SchemaPostBuild `json:"postBuild"`,
     name:       string          `json:"name"`,
     arch:       string          `json:"arch"`,
     entry:      string          `json:"entry"`,
     flags:      []string        `json:"buildFlags"`,
-    pre_build:  SchemaPreBuild  `json:"preBuild"`,
-    post_build: SchemaPostBuild `json:"postBuild"`
 }
 
 ExecuteAction :: distinct []string
 
-SchemaScripts :: distinct map[string]string
-
-
 Schema :: struct {
-    configs:    SchemaConfigs       `json:"configs"`,
     profiles:   []SchemaProfile     `json:"profiles"`,
-    scripts:    SchemaScripts       `json:"scripts"`
+    configs:    SchemaConfigs       `json:"configs"`,
+    scripts:    map[string]string   `json:"scripts"`
 }

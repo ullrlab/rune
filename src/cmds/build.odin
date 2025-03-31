@@ -23,9 +23,9 @@ BuildData :: struct {
 }
 
 // Process the "build [profile?]" command.
-process_build :: proc(args: []string, schema: parsing.Schema) {
-    default_profile, default_ok := get_default_profile(schema)
-    if !default_ok && len(args) < 2 {
+process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) {
+    default_profile := utils.get_default_profile(schema)
+    if default_profile == "" && len(args) < 2 {
         log.error("No default profile was set. Define one or rerun using `rune build [profile]`")
         return
     }
@@ -70,7 +70,7 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
         entry = profile.entry,
         output = output,
         flags = profile.flags
-    })
+    }, buildCmd)
     defer delete(build_err)
     
     if build_err != "" {
@@ -96,11 +96,6 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
             log.success(msg)
         }
     }
-}
-
-@(private="file")
-get_default_profile :: proc(schema: parsing.Schema) -> (string, bool) {
-    return schema.configs.profile, schema.configs.profile != "",
 }
 
 @(private="file")
@@ -197,10 +192,10 @@ get_extension :: proc(arch: string, mode: string) -> (string, bool) {
 }
 
 @(private="file")
-execute_build :: proc(data: BuildData) -> (string, f64) {
+execute_build :: proc(data: BuildData, buildCmd: string) -> (string, f64) {
     start_time := time.now()
 
-    cmd := "odin build"
+    cmd := strings.join({"odin", buildCmd}, " ")
 
     if data.entry != "" {
         cmd = strings.join({cmd, data.entry}, " ")
@@ -228,7 +223,7 @@ execute_build :: proc(data: BuildData) -> (string, f64) {
 }
 
 @(private="file")
-execute_pre_build :: proc(step_scripts: []string, script_list: parsing.SchemaScripts) -> (string, f64) {
+execute_pre_build :: proc(step_scripts: []string, script_list: map[string]string) -> (string, f64) {
     start_time := time.now()
 
     script_err := execute_scripts(step_scripts, script_list)
@@ -240,7 +235,7 @@ execute_pre_build :: proc(step_scripts: []string, script_list: parsing.SchemaScr
 }
 
 @(private="file")
-execute_post_build :: proc(post_build: parsing.SchemaPostBuild, script_list: parsing.SchemaScripts) -> (string, f64) {
+execute_post_build :: proc(post_build: parsing.SchemaPostBuild, script_list: map[string]string) -> (string, f64) {
     start_time := time.now()
 
     for copy in post_build.copy {
@@ -259,7 +254,7 @@ execute_post_build :: proc(post_build: parsing.SchemaPostBuild, script_list: par
 }
 
 @(private="file")
-execute_scripts :: proc(step_scripts: []string, script_list: parsing.SchemaScripts) -> string {
+execute_scripts :: proc(step_scripts: []string, script_list: map[string]string) -> string {
     for script_name in step_scripts {
         script := script_list[script_name] or_else ""
         if script == "" {

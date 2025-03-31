@@ -10,7 +10,7 @@ import "log"
 import "parsing"
 
 main :: proc() {
-    version := "0.1.21"
+    version := "0.1.22"
 
     if len(os.args) < 2 {
         cmds.print_help()
@@ -30,9 +30,9 @@ main :: proc() {
         case "-h":
             cmds.print_help()
         case "build":
-            cmds.process_build(os.args[1:], schema)
+            cmds.process_build(os.args[1:], schema, "build")
         case "run":
-            cmds.process_run()
+            cmds.process_run(os.args[1:], schema)
         case "test":
             cmds.process_test()
         case "init":
