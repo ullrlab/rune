@@ -32,7 +32,7 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
 
     profile_name := len(args) > 1 ? args[1] : default_profile
 
-    profile, profile_ok := get_profile(schema, profile_name)
+    profile, profile_ok := utils.get_profile(schema, profile_name)
     if !profile_ok {
         msg := fmt.aprintf("Failed to find \"%s\" in the list of profiles", profile_name)
         log.error(msg)
@@ -45,7 +45,7 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
         return
     }
     
-    ext, ext_ok := get_extension(profile.arch, schema.configs.mode)
+    ext, ext_ok := utils.get_extension(profile.arch, schema.configs.mode)
     if !ext_ok {
         return
     }
@@ -99,21 +99,6 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
 }
 
 @(private="file")
-get_profile :: proc(schema: parsing.Schema, name: string) -> (parsing.SchemaProfile, bool) {
-    profile: parsing.SchemaProfile
-
-    for p in schema.profiles {
-        if p.name != name {
-            continue
-        }
-
-        return p, true
-    }
-
-    return {}, false
-}
-
-@(private="file")
 parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProfile) -> string {
     output := configs.output
 
@@ -160,38 +145,6 @@ create_output :: proc(output: string) -> bool {
 }
 
 @(private="file")
-get_extension :: proc(arch: string, mode: string) -> (string, bool) {
-    platform, platform_supported := utils.get_platform(arch)
-    if !platform_supported {
-        msg := fmt.aprintf("Architecture \"%s\" is not supported", arch)
-        log.error(msg)
-        return "", false
-    }
-
-    ext: string = "asd"
-    ext_ok: bool
-
-    switch platform {
-        case .Windows:
-            ext, ext_ok = utils.get_windows_ext(mode)
-        case .Unix:
-            ext, ext_ok = utils.get_unix_ext(mode)
-        case .Mac:
-            ext, ext_ok = utils.get_mac_ext(mode)
-        case .Unknown:
-            ext_ok := false
-    }
-
-    if !ext_ok {
-        msg := fmt.aprintf("Build mode \"%s\" is not supported for architecture \"%s\"", mode, arch)
-        log.error(msg)
-        return "", false
-    }
-
-    return ext, true
-}
-
-@(private="file")
 execute_build :: proc(data: BuildData, buildCmd: string) -> (string, f64) {
     start_time := time.now()
 
@@ -214,7 +167,7 @@ execute_build :: proc(data: BuildData, buildCmd: string) -> (string, f64) {
 
     log.info(cmd)
 
-    script_err := process_script(cmd)
+    script_err := utils.process_script(cmd)
     if script_err != "" {
         return script_err, time.duration_seconds(time.since(start_time))
     }
@@ -261,7 +214,7 @@ execute_scripts :: proc(step_scripts: []string, script_list: map[string]string) 
             return fmt.aprintf("Script \"%s\" is not defined in rune.json", script)
         }
 
-        script_err := process_script(script)
+        script_err := utils.process_script(script)
         if script_err != "" {
             return fmt.aprintf("Failed to execute script \"%s\":\n%s", script, script_err)
         }

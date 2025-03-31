@@ -1,5 +1,9 @@
 package utils
 
+import "core:fmt"
+
+import "../log"
+
 Platform :: enum {
     Windows,
     Unix,
@@ -28,7 +32,7 @@ get_platform :: proc(arch: string) -> (Platform, bool) {
     return .Unknown, false
 }
 
-
+@(private="file")
 get_windows_ext :: proc(mode: string) -> (string, bool) {
     switch mode {
         case "exe", "test":
@@ -48,6 +52,7 @@ get_windows_ext :: proc(mode: string) -> (string, bool) {
     return "", false
 }
 
+@(private="file")
 get_unix_ext :: proc(mode: string) -> (string, bool) {
     switch mode {
         case "exe", "test":
@@ -67,6 +72,7 @@ get_unix_ext :: proc(mode: string) -> (string, bool) {
     return "", false
 }
 
+@(private="file")
 get_mac_ext :: proc(mode: string) -> (string, bool) {
     switch mode {
         case "exe", "test":
@@ -84,4 +90,35 @@ get_mac_ext :: proc(mode: string) -> (string, bool) {
     }
 
     return "", false
+}
+
+get_extension :: proc(arch: string, mode: string) -> (string, bool) {
+    platform, platform_supported := get_platform(arch)
+    if !platform_supported {
+        msg := fmt.aprintf("Architecture \"%s\" is not supported", arch)
+        log.error(msg)
+        return "", false
+    }
+
+    ext: string = "asd"
+    ext_ok: bool
+
+    switch platform {
+        case .Windows:
+            ext, ext_ok = get_windows_ext(mode)
+        case .Unix:
+            ext, ext_ok = get_unix_ext(mode)
+        case .Mac:
+            ext, ext_ok = get_mac_ext(mode)
+        case .Unknown:
+            ext_ok := false
+    }
+
+    if !ext_ok {
+        msg := fmt.aprintf("Build mode \"%s\" is not supported for architecture \"%s\"", mode, arch)
+        log.error(msg)
+        return "", false
+    }
+
+    return ext, true
 }
