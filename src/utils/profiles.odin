@@ -2,10 +2,6 @@ package utils
 
 import "../parsing"
 
-get_default_profile :: proc(schema: parsing.Schema) -> string {
-    return schema.configs.profile
-}
-
 get_profile :: proc(schema: parsing.Schema, name: string) -> (parsing.SchemaProfile, bool) {
     profile: parsing.SchemaProfile
 

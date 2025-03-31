@@ -10,13 +10,12 @@ import "../parsing"
 import "../utils"
 
 process_run :: proc(args: []string, schema: parsing.Schema) {
-    default_profile := utils.get_default_profile(schema)
-    if default_profile == "" && len(args) < 2 {
+    if schema.configs.profile == "" && len(args) < 2 {
         log.error("Run script not found")
         return
     }
 
-    if default_profile != "" && len(args) < 2 {
+    if schema.configs.profile != "" && len(args) < 2 {
         process_build(args, schema, "run")
         return
     }

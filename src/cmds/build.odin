@@ -24,13 +24,12 @@ BuildData :: struct {
 
 // Process the "build [profile?]" command.
 process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) {
-    default_profile := utils.get_default_profile(schema)
-    if default_profile == "" && len(args) < 2 {
+    if schema.configs.profile == "" && len(args) < 2 {
         log.error("No default profile was set. Define one or rerun using `rune build [profile]`")
         return
     }
 
-    profile_name := len(args) > 1 ? args[1] : default_profile
+    profile_name := len(args) > 1 ? args[1] : schema.configs.profile
 
     profile, profile_ok := utils.get_profile(schema, profile_name)
     if !profile_ok {

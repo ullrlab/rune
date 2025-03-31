@@ -4,6 +4,7 @@ import "core:fmt"
 
 import "../log"
 
+// Enum containing the different platforms
 Platform :: enum {
     Windows,
     Unix,
@@ -11,8 +12,8 @@ Platform :: enum {
     Unknown
 }
 
+// Given a target architecture, returns the appropriate platform
 get_platform :: proc(arch: string) -> (Platform, bool) {
-    
     switch arch {
         case "windows_i386", "windows_amd64":
             return .Windows, true
@@ -92,6 +93,10 @@ get_mac_ext :: proc(mode: string) -> (string, bool) {
     return "", false
 }
 
+/*
+This function returns the appropriate extension based on the output type and
+the targeted platform.
+*/
 get_extension :: proc(arch: string, mode: string) -> (string, bool) {
     platform, platform_supported := get_platform(arch)
     if !platform_supported {
