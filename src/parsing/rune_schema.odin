@@ -7,8 +7,6 @@ CopyAction :: struct {
     from:   string  `json:"from"`
 }
 
-ScriptAction :: distinct string
-
 SchemaConfigs :: struct {
     target:     string  `json:"target"`,
     output:     string  `json:"target"`,
@@ -17,11 +15,11 @@ SchemaConfigs :: struct {
 }
 
 SchemaPreBuild :: struct {
-    scripts:    []ScriptAction  `json:"scripts"`
+    scripts:    []string  `json:"scripts"`
 }
 
 SchemaPostBuild :: struct {
-    scripts:    []ScriptAction  `json:"scripts"`,
+    scripts:    []string  `json:"scripts"`,
     copy:       []CopyAction    `json:"copy"`
 }
 
@@ -36,9 +34,11 @@ SchemaProfile :: struct {
 
 ExecuteAction :: distinct []string
 
+SchemaScripts :: distinct map[string]string
+
 
 Schema :: struct {
     configs:    SchemaConfigs       `json:"configs"`,
     profiles:   []SchemaProfile     `json:"profiles"`,
-    scripts:    map[string]string   `json:"scripts"`
+    scripts:    SchemaScripts       `json:"scripts"`
 }

@@ -71,7 +71,7 @@ process_build :: proc(args: []string, schema: parsing.Schema) {
     }
 
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
-        post_build_err, post_build_time := execute_post_build(profile.post_build)
+        post_build_err, post_build_time := execute_post_build(profile.post_build, schema.scripts)
         defer delete(post_build_err)
         log.info()
 
@@ -207,35 +207,35 @@ execute_build :: proc(data: BuildData) -> (string, f64) {
 
     log.info(cmd)
 
-    r, w, _ := os.pipe()
-    p, err := os.process_start({
-        command = strings.split(cmd, " "),
-        stdout = w,
-        stderr = w,
-    })
-    if err != nil {
-        return fmt.aprintf("Error starting process:", err), time.duration_seconds(time.since(start_time))
-    }
-    defer os.close(w)
-
-    state: os.Process_State
-    state, err = os.process_wait(p)
-
-    if err != nil {
-        return fmt.aprintf("Failed to build project: %s", err), time.duration_seconds(time.since(start_time))
+    script_ok := process_script(cmd)
+    if script_ok != "" {
+        return script_ok, time.duration_seconds(time.since(start_time))
     }
     
     return "", time.duration_seconds(time.since(start_time))
 }
 
 @(private="file")
-execute_post_build :: proc(post_build: parsing.SchemaPostBuild) -> (string, f64) {
+execute_post_build :: proc(post_build: parsing.SchemaPostBuild, scripts: parsing.SchemaScripts) -> (string, f64) {
     start_time := time.now()
 
     for copy in post_build.copy {
         copy_err := process_copy(copy.from, copy.from, copy.to)
         if copy_err != "" {
             return copy_err, time.duration_seconds(time.since(start_time))
+        }
+    }
+
+    for script_name in post_build.scripts {
+        
+        script := scripts[script_name] or_else ""
+        if script == "" {
+            return fmt.aprintf("Script \"%s\" is not defined in rune.json", script), time.duration_seconds(time.since(start_time))
+        }
+
+        script_ok := process_script(script)
+        if script_ok != "" {
+            return fmt.aprintf("Failed to execute script \"%s\":\n%s", script, script_ok), time.duration_seconds(time.since(start_time))
         }
     }
 
