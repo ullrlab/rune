@@ -18,20 +18,10 @@
         {
             "name": "release",
             "arch": "windows_amd64",
-            "entry": "src",
-            "preBuild": {
-                "scripts": [
-                    "echo"
-                ]
-            },
-            "postBuild": {
-                "scripts": [
-                    "echo"
-                ]
-            }
+            "entry": "src"
         }
     ],
     "scripts": {
-        "echo": "py ./scripts/print.py"
+        "clean": "py ./scripts/clean.py"
     }
 }
