@@ -23,6 +23,15 @@ mock_error_process_exec :: proc(
         return {}, {}, {}, os2.General_Error.Permission_Denied
 }
 
+MOCK_ERR_MSG := "MOCK_ERROR"
+
+mock_stderr_process_exec :: proc(
+    desc: os2.Process_Desc,
+    allocator: runtime.Allocator,\
+    loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error)  {
+        return {}, {}, transmute([]u8)MOCK_ERR_MSG, nil
+}
+
 @(test)
 process_valid_script :: proc(t: ^testing.T) {
     sys := utils.System {
@@ -45,4 +54,17 @@ process_err_script :: proc(t: ^testing.T) {
     str := fmt.aprintf("Failed to execute script: %s", res)
     defer delete(str)
     testing.expect(t, res == "Script test could not be run", str)
+}
+
+@(test)
+process_stderr_script :: proc(t: ^testing.T) {
+    sys := utils.System {
+        process_exec = mock_stderr_process_exec
+    }
+
+    res := utils.process_script(sys, "test")
+    defer delete(res)
+    str := fmt.aprintf("Failed to execute script: %s", res)
+    defer delete(str)
+    testing.expect(t, res == MOCK_ERR_MSG, str)
 }
