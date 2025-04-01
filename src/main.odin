@@ -10,7 +10,7 @@ import "logger"
 import "utils"
 
 main :: proc() {
-    version := "0.0.29"
+    version := "0.0.30"
 
     sys := utils.System {
         args = os2.args,

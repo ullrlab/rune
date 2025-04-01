@@ -77,7 +77,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
     if build_err != "" {
         msg := fmt.aprintf("Compilation failed in %.3f seconds\n", build_time)
         logger.error(msg)
-        logger.info(build_err)
+        logger.error(build_err)
         return
     } else {
         msg := fmt.aprintf("Compilation succeeded in %.3f seconds", build_time)
@@ -91,7 +91,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
         if post_build_err != "" {
             msg := fmt.aprintf("Post build failed in %.3f seconds\n", post_build_time)
             logger.error(msg)
-            logger.info(post_build_err)
+            logger.error(post_build_err)
         } else {
             msg := fmt.aprintf("Post build completed in %.3f seconds", post_build_time)
             logger.info(msg)
