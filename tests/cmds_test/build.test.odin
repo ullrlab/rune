@@ -1,4 +1,4 @@
-package cmds
+package cmds_test
 
 import "core:testing"
 
