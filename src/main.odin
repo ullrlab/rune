@@ -6,11 +6,11 @@ import "core:os"
 import "core:strings"
 
 import "cmds"
-import "log"
+import "logger"
 import "parsing"
 
 main :: proc() {
-    version := "0.0.25"
+    version := "0.0.26"
 
     if len(os.args) < 2 {
         cmds.print_help()
@@ -21,15 +21,15 @@ main :: proc() {
     cmd := strings.to_lower(os.args[1])
 
     if !has_schema && cmd != "new" {
-        log.error("rune.json does not exists. Run \"rune new [build_mode] [target]\"")
+        logger.error("rune.json does not exists. Run \"rune new [build_mode] [target]\"")
         return;
     }
 
     switch cmd {
         case "--version":
-            log.info(version)
+            logger.info(version)
         case "-v":
-            log.info(version)
+            logger.info(version)
         case "--help":
             cmds.print_help()
         case "-h":

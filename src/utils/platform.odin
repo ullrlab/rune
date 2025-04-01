@@ -2,7 +2,7 @@ package utils
 
 import "core:fmt"
 
-import "../log"
+import "../logger"
 
 // Enum containing the different platforms
 Platform :: enum {
@@ -118,7 +118,7 @@ get_extension :: proc(arch: string, type: string) -> (string, bool) {
     platform, platform_supported := get_platform(arch)
     if !platform_supported {
         msg := fmt.aprintf("Architecture \"%s\" is not supported", arch)
-        log.error(msg)
+        logger.error(msg)
         return "", false
     }
 
@@ -138,7 +138,7 @@ get_extension :: proc(arch: string, type: string) -> (string, bool) {
 
     if !ext_ok {
         msg := fmt.aprintf("Build mode \"%s\" is not supported for architecture \"%s\"", type, arch)
-        log.error(msg)
+        logger.error(msg)
         return "", false
     }
 

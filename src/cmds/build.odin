@@ -12,7 +12,7 @@ import os "core:os/os2"
 import "core:time"
 import "core:strings"
 
-import "../log"
+import "../logger"
 import "../parsing"
 import "../utils"
 
@@ -27,7 +27,7 @@ BuildData :: struct {
 process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) {
     start_time := time.now()
     if schema.configs.profile == "" && len(args) < 2 {
-        log.error("No default profile was set. Define one or rerun using `rune build [profile]`")
+        logger.error("No default profile was set. Define one or rerun using `rune build [profile]`")
         return
     }
 
@@ -36,7 +36,7 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
     profile, profile_ok := utils.get_profile(schema, profile_name)
     if !profile_ok {
         msg := fmt.aprintf("Failed to find \"%s\" in the list of profiles", profile_name)
-        log.error(msg)
+        logger.error(msg)
         return
     }
 
@@ -59,11 +59,11 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
 
         if pre_build_err != "" {
             msg := fmt.aprintf("Pre build failed in %.3f seconds\n", pre_build_time)
-            log.error(msg)
-            log.info(pre_build_err)
+            logger.error(msg)
+            logger.info(pre_build_err)
         } else {
             msg := fmt.aprintf("Pre build completed in %.3f seconds", pre_build_time)
-            log.success(msg)
+            logger.success(msg)
         }
     }
 
@@ -77,12 +77,12 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
     
     if build_err != "" {
         msg := fmt.aprintf("Compilation failed in %.3f seconds\n", build_time)
-        log.error(msg)
-        log.info(build_err)
+        logger.error(msg)
+        logger.info(build_err)
         return
     } else {
         msg := fmt.aprintf("Compilation succeeded in %.3f seconds", build_time)
-        log.info(msg)
+        logger.info(msg)
     }
 
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
@@ -91,16 +91,16 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
 
         if post_build_err != "" {
             msg := fmt.aprintf("Post build failed in %.3f seconds\n", post_build_time)
-            log.error(msg)
-            log.info(post_build_err)
+            logger.error(msg)
+            logger.info(post_build_err)
         } else {
             msg := fmt.aprintf("Post build completed in %.3f seconds", post_build_time)
-            log.info(msg)
+            logger.info(msg)
         }
     }
 
     total_time := time.duration_seconds(time.since(start_time))
-    log.success(fmt.aprintf("Build completed in %.3f seconds", total_time))
+    logger.success(fmt.aprintf("Build completed in %.3f seconds", total_time))
 }
 
 @(private="file")
@@ -140,7 +140,7 @@ create_output :: proc(output: string) -> bool {
             err := os.make_directory(curr)
             if err != nil {
                 msg := fmt.aprintf("Error occurred while trying to create output directory %s: %s", curr, err)
-                log.error(msg)
+                logger.error(msg)
                 return false
             }
         }
@@ -175,7 +175,7 @@ execute_build :: proc(data: BuildData, buildCmd: string) -> (string, f64) {
         }
     }
 
-    log.info(cmd)
+    logger.info(cmd)
 
     script_err := utils.process_script(cmd)
     if script_err != "" {

@@ -5,13 +5,13 @@ import os "core:os/os2"
 import "core:strings"
 import "core:time"
 
-import "../log"
+import "../logger"
 import "../parsing"
 import "../utils"
 
 process_run :: proc(args: []string, schema: parsing.Schema) {
     if schema.configs.profile == "" && len(args) < 2 {
-        log.error("Run script not found")
+        logger.error("Run script not found")
         return
     }
 
@@ -31,7 +31,7 @@ process_run :: proc(args: []string, schema: parsing.Schema) {
 
     if script == "" {
         msg := fmt.aprintf("Run script %s does not exist", script_name)
-        log.error(msg)
+        logger.error(msg)
         return
     }
 
@@ -40,11 +40,11 @@ process_run :: proc(args: []string, schema: parsing.Schema) {
     script_err := utils.process_script(script)
     if script_err != "" {
         msg := fmt.aprintf("Failed to execute script in %.3f seconds\n", time.duration_seconds(time.since(start_time)))
-        log.error(msg)
-        log.info(script_err)
+        logger.error(msg)
+        logger.info(script_err)
         return
     } else {
         msg := fmt.aprintf("Execute script in %.3f seconds", time.duration_seconds(time.since(start_time)))
-        log.success(msg)
+        logger.success(msg)
     }
 }

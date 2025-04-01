@@ -3,7 +3,7 @@ package cmds
 import "core:fmt"
 import "core:strings"
 
-import "../log"
+import "../logger"
 import "../utils"
 import "../parsing"
 
@@ -43,10 +43,10 @@ process_new :: proc(args: []string) {
 @(private="file")
 validate_build_mode :: proc(args: []string) -> bool {
     if len(args) < 2 {
-        log.error("Please specify build mode by running \"rune init [build_mode] [target_name]\"")
-        log.error("Valid build modes:")
+        logger.error("Please specify build mode by running \"rune init [build_mode] [target_name]\"")
+        logger.error("Valid build modes:")
         for type in utils.project_types {
-            log.error(fmt.aprintf("\t%s", type))
+            logger.error(fmt.aprintf("\t%s", type))
         }
         return false
     }
@@ -63,7 +63,7 @@ validate_build_mode :: proc(args: []string) -> bool {
 @(private="file")
 validate_target :: proc(args: []string) -> bool {
     if len(args) < 3 {
-        log.error("Please specify a target name by running \"rune init [build_mode] [target_name]\"")
+        logger.error("Please specify a target name by running \"rune init [build_mode] [target_name]\"")
         return false
     }
 

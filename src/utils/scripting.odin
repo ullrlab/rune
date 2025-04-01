@@ -4,7 +4,7 @@ import "core:fmt"
 import os "core:os/os2"
 import "core:strings"
 
-import "../log"
+import "../logger"
 
 process_script :: proc(script: string) -> string {
     state, stdout, stderr, err := os.process_exec({
@@ -22,7 +22,7 @@ process_script :: proc(script: string) -> string {
     }
 
     if len(stdout) > 0 {
-        log.info(string(stdout))
+        logger.info(string(stdout))
     }
 
     return ""
