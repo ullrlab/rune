@@ -1,22 +1,20 @@
 package cmds
 
 import "core:fmt"
-import os "core:os/os2"
 import "core:strings"
 import "core:time"
 
 import "../logger"
-import "../parsing"
 import "../utils"
 
-process_run :: proc(args: []string, schema: parsing.Schema) {
+process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) {
     if schema.configs.profile == "" && len(args) < 2 {
         logger.error("Run script not found")
         return
     }
 
     if schema.configs.profile != "" && len(args) < 2 {
-        process_build(args, schema, "run")
+        process_build(sys, args, schema, "run")
         return
     }
 

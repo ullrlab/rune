@@ -1,19 +1,18 @@
-package parsing
+package utils
 
 import "core:encoding/json"
 import "core:fmt"
-import "core:os"
 
 import "../logger"
 
-read_root_file :: proc() -> (Schema, bool) {
+read_root_file :: proc(sys: System) -> (Schema, bool) {
     rune_file := "./rune.json"
 
-    if !os.exists(rune_file) {
+    if !sys.exists(rune_file) {
         return {}, false
     }
 
-    data, ok := os.read_entire_file_from_filename(rune_file)
+    data, ok := sys.read_entire_file_from_path(rune_file, context.allocator)
     defer delete(data)
 
     schema: Schema
@@ -22,9 +21,9 @@ read_root_file :: proc() -> (Schema, bool) {
     return schema, true
 }
 
-write_root_file :: proc(schema: SchemaJon) {
+write_root_file :: proc(sys: System, schema: SchemaJon) {
     path := "./rune.json"
-    if os.exists(path) {
+    if sys.exists(path) {
         logger.error("rune.json already exists")
         return
     }
@@ -36,7 +35,7 @@ write_root_file :: proc(schema: SchemaJon) {
         return
     }
 
-    werr := os.write_entire_file_or_err(path, json_data)
+    werr := sys.write_entire_file(path, json_data)
     if werr != nil {
         logger.error(fmt.aprintf("Failed to write schema to rune.json:\n%s", werr))
         return

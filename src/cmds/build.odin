@@ -8,12 +8,11 @@
 package cmds
 
 import "core:fmt"
-import os "core:os/os2"
+import "core:os/os2"
 import "core:time"
 import "core:strings"
 
 import "../logger"
-import "../parsing"
 import "../utils"
 
 BuildData :: struct {
@@ -24,7 +23,7 @@ BuildData :: struct {
 }
 
 // Process the "build [profile?]" command.
-process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) {
+process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, buildCmd: string) {
     start_time := time.now()
     if schema.configs.profile == "" && len(args) < 2 {
         logger.error("No default profile was set. Define one or rerun using `rune build [profile]`")
@@ -41,7 +40,7 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
     }
 
     output := parse_output(schema.configs, profile)
-    output_ok := create_output(output)
+    output_ok := create_output(sys, output)
     if !output_ok {
         return
     }
@@ -86,7 +85,7 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
     }
 
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
-        post_build_err, post_build_time := execute_post_build(profile.post_build, schema.scripts)
+        post_build_err, post_build_time := execute_post_build(sys, profile.post_build, schema.scripts)
         defer delete(post_build_err)
 
         if post_build_err != "" {
@@ -104,7 +103,7 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
 }
 
 @(private="file")
-parse_output :: proc(configs: parsing.SchemaConfigs, profile: parsing.SchemaProfile) -> string {
+parse_output :: proc(configs: utils.SchemaConfigs, profile: utils.SchemaProfile) -> string {
     output := configs.output
 
     is_debug := check_debug(profile.flags)
@@ -131,13 +130,13 @@ check_debug :: proc(flags: []string) -> bool {
 }
 
 @(private="file")
-create_output :: proc(output: string) -> bool {
+create_output :: proc(sys: utils.System, output: string) -> bool {
     dirs := strings.split(output, "/")
     curr := "."
     for dir in dirs {
         curr = strings.concatenate({curr, "/", dir})
-        if !os.exists(curr) {
-            err := os.make_directory(curr)
+        if !sys.exists(curr) {
+            err := sys.make_directory(curr)
             if err != nil {
                 msg := fmt.aprintf("Error occurred while trying to create output directory %s: %s", curr, err)
                 logger.error(msg)
@@ -198,11 +197,11 @@ execute_pre_build :: proc(step_scripts: []string, script_list: map[string]string
 }
 
 @(private="file")
-execute_post_build :: proc(post_build: parsing.SchemaPostBuild, script_list: map[string]string) -> (string, f64) {
+execute_post_build :: proc(sys: utils.System, post_build: utils.SchemaPostBuild, script_list: map[string]string) -> (string, f64) {
     start_time := time.now()
 
     for copy in post_build.copy {
-        copy_err := process_copy(copy.from, copy.from, copy.to)
+        copy_err := process_copy(sys, copy.from, copy.from, copy.to)
         if copy_err != "" {
             return copy_err, time.duration_seconds(time.since(start_time))
         }
@@ -234,26 +233,26 @@ execute_scripts :: proc(step_scripts: []string, script_list: map[string]string) 
 }
 
 @(private="file")
-process_copy :: proc(original_from: string, from: string, to: string) -> string {
-    if os.is_dir(from) {
+process_copy :: proc(sys: utils.System, original_from: string, from: string, to: string) -> string {
+    if sys.is_dir(from) {
 
         extra := strings.trim_prefix(from, original_from)
         new_dir := strings.concatenate({to, extra})
-        if !os.exists(new_dir) {
-            err := os.make_directory(new_dir)
+        if !sys.exists(new_dir) {
+            err := sys.make_directory(new_dir)
             if err != nil {
                 return fmt.aprintf("Failed to create directory %s: %s", new_dir, err)
             }
         }
 
-        dir, err := os.open(from)
+        dir, err := sys.open(from)
         if err != nil {
             return fmt.aprintf("Failed to open directory %s: %s", from, err)
         }
-        defer os.close(dir)
+        defer sys.close(dir)
 
-        files: []os.File_Info
-        files, err = os.read_dir(dir, -1, context.allocator)
+        files: []os2.File_Info
+        files, err = sys.read_dir(dir, -1, context.allocator)
         if err != nil {
             return fmt.aprintf("Failed to read files from %s: %s", from, err)
         }
@@ -261,7 +260,7 @@ process_copy :: proc(original_from: string, from: string, to: string) -> string 
         copy_err: string
         for file in files {
             name, _ := strings.replace(file.fullpath, "\\", "/", -1)
-            copy_err = process_copy(original_from, name, to)
+            copy_err = process_copy(sys, original_from, name, to)
             if copy_err != "" {
                 return copy_err
             }
@@ -273,7 +272,7 @@ process_copy :: proc(original_from: string, from: string, to: string) -> string 
     extra := strings.trim_prefix(from, original_from)
     to := strings.concatenate({to, extra})
     
-    copy_err := os.copy_file(to, from)
+    copy_err := sys.copy_file(to, from)
     if copy_err != nil{
         return fmt.aprintf("Failed to copy: %s", copy_err)
     }

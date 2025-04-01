@@ -5,9 +5,8 @@ import "core:strings"
 
 import "../logger"
 import "../utils"
-import "../parsing"
 
-process_new :: proc(args: []string) {
+process_new :: proc(sys: utils.System, args: []string) {
     build_mode_ok := validate_build_mode(args)
     if !build_mode_ok {
         return
@@ -20,7 +19,7 @@ process_new :: proc(args: []string) {
 
     arch := strings.to_lower(fmt.aprintf("%s_%s", ODIN_OS, ODIN_ARCH))
 
-    schema := parsing.SchemaJon {
+    schema := utils.SchemaJon {
         schema = "https://raw.githubusercontent.com/ullrlab/rune/refs/heads/main/misc/rune.schema.json",
         configs = {
             target_type = args[1],
@@ -37,7 +36,7 @@ process_new :: proc(args: []string) {
         }
     }
 
-    parsing.write_root_file(schema)
+    utils.write_root_file(sys, schema)
 }
 
 @(private="file")

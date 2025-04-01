@@ -1,9 +1,7 @@
 package utils
 
-import "../parsing"
-
-get_profile :: proc(schema: parsing.Schema, name: string) -> (parsing.SchemaProfile, bool) {
-    profile: parsing.SchemaProfile
+get_profile :: proc(schema: Schema, name: string) -> (SchemaProfile, bool) {
+    profile: SchemaProfile
 
     for p in schema.profiles {
         if p.name != name {
