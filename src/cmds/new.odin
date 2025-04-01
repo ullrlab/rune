@@ -23,7 +23,7 @@ process_new :: proc(args: []string) {
     schema := parsing.SchemaJon {
         schema = "https://raw.githubusercontent.com/ullrlab/rune/refs/heads/main/misc/rune.schema.json",
         configs = {
-            type = args[1],
+            target_type = args[1],
             output = "bin/{config}/{arch}",
             target = args[2],
             profile = "default"

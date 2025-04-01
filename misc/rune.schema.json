@@ -7,7 +7,7 @@
                 "target": { "type": "string", "description": "Name of the build target" },
                 "output": { "type": "string", "description": "Output directory" },
                 "profile": { "type": "string", "description": "Default profile to use" },
-                "type": {
+                "targetType": {
                     "type": "string",
                     "enum": [
                         "exe",
@@ -28,7 +28,7 @@
                     "description": "Project build-mode. Defines the output of the project"
                 }
             },
-            "required": ["target", "output", "type"]
+            "required": ["target", "output", "targetType"]
         },
         "profiles": {
             "type": "array",

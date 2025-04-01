@@ -4,7 +4,7 @@
         "target": "rune",
         "output": "bin/{config}/{arch}",
         "profile": "release",
-        "type": "exe"
+        "targetType": "exe"
     },
     "profiles": [
         {

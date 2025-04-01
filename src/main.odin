@@ -10,7 +10,7 @@ import "log"
 import "parsing"
 
 main :: proc() {
-    version := "0.0.24"
+    version := "0.0.25"
 
     if len(os.args) < 2 {
         cmds.print_help()
