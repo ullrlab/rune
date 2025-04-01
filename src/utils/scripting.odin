@@ -18,7 +18,7 @@ process_script :: proc(script: string) -> string {
     }
 
     if len(stderr) > 0 {
-        return string(stdout)
+        return string(stderr)
     }
 
     if len(stdout) > 0 {
