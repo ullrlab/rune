@@ -42,7 +42,7 @@ process_new :: proc(sys: utils.System, args: []string) {
 @(private="file")
 validate_build_mode :: proc(args: []string) -> bool {
     if len(args) < 2 {
-        logger.error("Please specify build mode by running \"rune init [build_mode] [target_name]\"")
+        logger.error("Please specify build mode by running \"rune new [build_mode] [target_name]\"")
         logger.error("Valid build modes:")
         for type in utils.project_types {
             logger.error(fmt.aprintf("\t%s", type))
@@ -62,7 +62,7 @@ validate_build_mode :: proc(args: []string) -> bool {
 @(private="file")
 validate_target :: proc(args: []string) -> bool {
     if len(args) < 3 {
-        logger.error("Please specify a target name by running \"rune init [build_mode] [target_name]\"")
+        logger.error("Please specify a target name by running \"rune new [build_mode] [target_name]\"")
         return false
     }
 
