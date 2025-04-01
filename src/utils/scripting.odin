@@ -1,13 +1,12 @@
 package utils
 
 import "core:fmt"
-import os "core:os/os2"
 import "core:strings"
 
 import "../logger"
 
-process_script :: proc(script: string) -> string {
-    state, stdout, stderr, err := os.process_exec({
+process_script :: proc(sys: System, script: string) -> string {
+    state, stdout, stderr, err := sys.process_exec({
         command = strings.split(script, " ")
     }, context.allocator)
     defer delete(stdout)

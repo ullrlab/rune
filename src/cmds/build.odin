@@ -53,7 +53,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
     output = strings.concatenate({output, schema.configs.target, ext})
 
     if len(profile.pre_build.scripts) > 0 {
-        pre_build_err, pre_build_time := execute_pre_build(profile.pre_build.scripts, schema.scripts)
+        pre_build_err, pre_build_time := execute_pre_build(sys, profile.pre_build.scripts, schema.scripts)
         defer delete(pre_build_err)
 
         if pre_build_err != "" {
@@ -66,7 +66,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
         }
     }
 
-    build_err, build_time := execute_build(BuildData{
+    build_err, build_time := execute_build(sys, BuildData{
         entry = profile.entry,
         output = output,
         flags = profile.flags,
@@ -149,7 +149,7 @@ create_output :: proc(sys: utils.System, output: string) -> bool {
 }
 
 @(private="file")
-execute_build :: proc(data: BuildData, buildCmd: string) -> (string, f64) {
+execute_build :: proc(sys: utils.System, data: BuildData, buildCmd: string) -> (string, f64) {
     start_time := time.now()
 
     cmd := strings.join({"odin", buildCmd}, " ")
@@ -176,7 +176,7 @@ execute_build :: proc(data: BuildData, buildCmd: string) -> (string, f64) {
 
     logger.info(cmd)
 
-    script_err := utils.process_script(cmd)
+    script_err := utils.process_script(sys, cmd)
     if script_err != "" {
         return script_err, time.duration_seconds(time.since(start_time))
     }
@@ -185,10 +185,10 @@ execute_build :: proc(data: BuildData, buildCmd: string) -> (string, f64) {
 }
 
 @(private="file")
-execute_pre_build :: proc(step_scripts: []string, script_list: map[string]string) -> (string, f64) {
+execute_pre_build :: proc(sys: utils.System, step_scripts: []string, script_list: map[string]string) -> (string, f64) {
     start_time := time.now()
 
-    script_err := execute_scripts(step_scripts, script_list)
+    script_err := execute_scripts(sys, step_scripts, script_list)
     if script_err != "" {
         return script_err, time.duration_seconds(time.since(start_time))
     }
@@ -207,7 +207,7 @@ execute_post_build :: proc(sys: utils.System, post_build: utils.SchemaPostBuild,
         }
     }
 
-    script_err := execute_scripts(post_build.scripts, script_list)
+    script_err := execute_scripts(sys, post_build.scripts, script_list)
     if script_err != "" {
         return script_err, time.duration_seconds(time.since(start_time))
     }
@@ -216,14 +216,14 @@ execute_post_build :: proc(sys: utils.System, post_build: utils.SchemaPostBuild,
 }
 
 @(private="file")
-execute_scripts :: proc(step_scripts: []string, script_list: map[string]string) -> string {
+execute_scripts :: proc(sys: utils.System, step_scripts: []string, script_list: map[string]string) -> string {
     for script_name in step_scripts {
         script := script_list[script_name] or_else ""
         if script == "" {
             return fmt.aprintf("Script \"%s\" is not defined in rune.json", script)
         }
 
-        script_err := utils.process_script(script)
+        script_err := utils.process_script(sys, script)
         if script_err != "" {
             return fmt.aprintf("Failed to execute script \"%s\":\n%s", script, script_err)
         }

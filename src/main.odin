@@ -22,7 +22,8 @@ main :: proc() {
         close = os.close,
         is_dir = os.is_dir,
         read_entire_file_from_path = os.read_entire_file_from_path,
-        write_entire_file = os.write_entire_file
+        write_entire_file = os.write_entire_file,
+        process_exec = os.process_exec
     }
 
     if len(sys.args) < 2 {

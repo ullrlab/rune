@@ -13,5 +13,6 @@ System :: struct {
     close: proc(f: ^os2.File) -> os2.Error,
     is_dir: proc(path: string) -> bool,
     read_entire_file_from_path: proc(name: string, allocator: runtime.Allocator) -> (data: []byte, err: os2.Error),
-    write_entire_file: proc(name: string, data: []byte, perm: int = 0o644, truncate := true) -> os2.Error
+    write_entire_file: proc(name: string, data: []byte, perm: int = 0o644, truncate := true) -> os2.Error,
+    process_exec: proc(desc: os2.Process_Desc, allocator: runtime.Allocator, loc := #caller_location) -> (state: os2.Process_State, stdout: []byte, stderr: []byte, err: os2.Error)
 }
