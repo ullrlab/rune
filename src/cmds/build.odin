@@ -19,11 +19,13 @@ import "../utils"
 BuildData :: struct {
     entry:  string,
     output: string,
-    flags:  []string
+    flags:  []string,
+    arch: string
 }
 
 // Process the "build [profile?]" command.
 process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) {
+    start_time := time.now()
     if schema.configs.profile == "" && len(args) < 2 {
         log.error("No default profile was set. Define one or rerun using `rune build [profile]`")
         return
@@ -68,18 +70,19 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
     build_err, build_time := execute_build(BuildData{
         entry = profile.entry,
         output = output,
-        flags = profile.flags
+        flags = profile.flags,
+        arch = profile.arch
     }, buildCmd)
     defer delete(build_err)
     
     if build_err != "" {
-        msg := fmt.aprintf("Build failed in %.3f seconds\n", build_time)
+        msg := fmt.aprintf("Compilation failed in %.3f seconds\n", build_time)
         log.error(msg)
         log.info(build_err)
         return
     } else {
-        msg := fmt.aprintf("Build completed in %.3f seconds", build_time)
-        log.success(msg)
+        msg := fmt.aprintf("Compilation succeeded in %.3f seconds", build_time)
+        log.info(msg)
     }
 
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
@@ -92,9 +95,12 @@ process_build :: proc(args: []string, schema: parsing.Schema, buildCmd: string) 
             log.info(post_build_err)
         } else {
             msg := fmt.aprintf("Post build completed in %.3f seconds", post_build_time)
-            log.success(msg)
+            log.info(msg)
         }
     }
+
+    total_time := time.duration_seconds(time.since(start_time))
+    log.success(fmt.aprintf("Build completed in %.3f seconds", total_time))
 }
 
 @(private="file")
@@ -157,8 +163,13 @@ execute_build :: proc(data: BuildData, buildCmd: string) -> (string, f64) {
         out := fmt.aprintf("-out:%s", data.output)
         cmd = strings.join({cmd, out}, " ")
     }
+
+    if data.arch != "" {
+        out := fmt.aprintf("-target:%s", data.arch)
+        cmd = strings.join({cmd, out}, " ")
+    }
     
-    if len(data.flags) > 0{
+    if len(data.flags) > 0 {
         for flag in data.flags {
             cmd = strings.join({cmd, flag}, " ")
         }
