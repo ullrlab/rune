@@ -47,3 +47,11 @@ return_mac_platforms :: proc(t: ^testing.T) {
         testing.expect(t, plat == utils.Platform.Mac, msg)
     }
 }
+
+@(test)
+return_unknown_platform :: proc(t: ^testing.T) {
+    plat, _ := utils.get_platform("invalid")
+    msg := fmt.aprintf("Invalid platform, received %s expected :%s", plat, utils.Platform.Unknown)
+    defer delete(msg)
+    testing.expect(t, plat == utils.Platform.Unknown, msg)
+}

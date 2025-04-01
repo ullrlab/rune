@@ -12,9 +12,6 @@ process_script :: proc(sys: System, script: string) -> string {
         command = cmds
     }, context.allocator)
 
-    defer delete(stdout)
-    defer delete(stderr)
-
     if err != nil {
         return fmt.aprintf("Script %s could not be run", script)
     }
