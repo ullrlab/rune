@@ -35,3 +35,15 @@ return_unix_platforms :: proc(t: ^testing.T) {
         testing.expect(t, plat == utils.Platform.Unix, msg)
     }
 }
+
+@(test)
+return_mac_platforms :: proc(t: ^testing.T) {
+    arr := []string{ "darwin_amd64", "darwin_arm64" }
+
+    for arch in arr {
+        plat, _ := utils.get_platform(arch)
+        msg := fmt.aprintf("Invalid platform, received %s expected :%s", plat, utils.Platform.Mac)
+        defer delete(msg)
+        testing.expect(t, plat == utils.Platform.Mac, msg)
+    }
+}
