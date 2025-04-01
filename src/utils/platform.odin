@@ -122,7 +122,7 @@ get_extension :: proc(arch: string, type: string) -> (string, bool) {
         return "", false
     }
 
-    ext: string = "asd"
+    ext: string = ""
     ext_ok: bool
 
     switch platform {
@@ -133,7 +133,7 @@ get_extension :: proc(arch: string, type: string) -> (string, bool) {
         case .Mac:
             ext, ext_ok = get_mac_ext(type)
         case .Unknown:
-            ext_ok := false
+            ext_ok = false
     }
 
     if !ext_ok {

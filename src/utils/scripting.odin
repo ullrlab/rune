@@ -1,7 +1,6 @@
 package utils
 
 import "core:fmt"
-import "core:log"
 import "core:strings"
 
 import "../logger"
@@ -9,7 +8,7 @@ import "../logger"
 process_script :: proc(sys: System, script: string) -> string {
     cmds := strings.split(script, " ")
     defer delete(cmds)
-    state, stdout, stderr, err := sys.process_exec({
+    _, stdout, stderr, err := sys.process_exec({
         command = cmds
     }, context.allocator)
 

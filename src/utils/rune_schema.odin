@@ -1,7 +1,5 @@
 package utils
 
-import "core:encoding/json"
-
 CopyAction :: struct {
     to:     string  `json:"to"`,
     from:   string  `json:"from"`

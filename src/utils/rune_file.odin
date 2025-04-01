@@ -12,8 +12,12 @@ read_root_file :: proc(sys: System) -> (Schema, bool) {
         return {}, false
     }
 
-    data, ok := sys.read_entire_file_from_path(rune_file, context.allocator)
+    data, err := sys.read_entire_file_from_path(rune_file, context.allocator)
     defer delete(data)
+    if err != nil {
+        logger.error("Failed to read rune.json")
+        return {}, false
+    }
 
     schema: Schema
     json.unmarshal(data, &schema)
