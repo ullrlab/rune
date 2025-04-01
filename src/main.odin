@@ -2,7 +2,7 @@
 package main
 
 import "core:fmt"
-import os "core:os/os2"
+import "core:os/os2"
 import "core:strings"
 
 import "cmds"
@@ -13,17 +13,17 @@ main :: proc() {
     version := "0.0.29"
 
     sys := utils.System {
-        args = os.args,
-        exists = os.exists,
-        make_directory = os.make_directory,
-        copy_file = os.copy_file,
-        read_dir = os.read_dir,
-        open = os.open,
-        close = os.close,
-        is_dir = os.is_dir,
-        read_entire_file_from_path = os.read_entire_file_from_path,
-        write_entire_file = os.write_entire_file,
-        process_exec = os.process_exec
+        args = os2.args,
+        exists = os2.exists,
+        make_directory = os2.make_directory,
+        copy_file = os2.copy_file,
+        read_dir = os2.read_dir,
+        open = os2.open,
+        close = os2.close,
+        is_dir = os2.is_dir,
+        read_entire_file_from_path = os2.read_entire_file_from_path,
+        write_entire_file = os2.write_entire_file,
+        process_exec = os2.process_exec
     }
 
     if len(sys.args) < 2 {
