@@ -6,11 +6,9 @@ import "core:strings"
 import "../logger"
 
 process_script :: proc(sys: System, script: string) -> string {
-    cmds := strings.split(script, " ")
-    defer delete(cmds)
 
     _, stdout, stderr, err := sys.process_exec({
-        command = cmds
+        command = strings.split(script, " ")
     }, context.allocator)
 
     if err != nil {

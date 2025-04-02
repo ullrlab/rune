@@ -11,6 +11,7 @@ import "core:fmt"
 import "core:os/os2"
 import "core:time"
 import "core:strings"
+import "core:log"
 
 import "../logger"
 import "../utils"
@@ -23,7 +24,7 @@ BuildData :: struct {
 }
 
 // Process the "build [profile?]" command.
-process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, buildCmd: string) -> string {
+process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> string {
     start_time := time.now()
     if schema.configs.profile == "" && len(args) < 2 {
         return "No default profile was set. Define one or rerun using `rune build [profile]`"
@@ -37,6 +38,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
     }
 
     output := parse_output(schema.configs, profile)
+    defer delete(output)
     output_err := create_output(sys, output)
     if output_err != "" {
         return output_err
@@ -47,7 +49,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
         return fmt.aprintf("Failed to get extension for %s", profile.arch)
     }
 
-    output = strings.concatenate({output, schema.configs.target, ext})
+    output, _ = strings.concatenate({output, schema.configs.target, ext})
 
     if len(profile.pre_build.scripts) > 0 {
         pre_build_err, pre_build_time := execute_pre_build(sys, profile.pre_build.scripts, schema.scripts)
@@ -68,7 +70,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
         output = output,
         flags = profile.flags,
         arch = profile.arch
-    }, buildCmd)
+    }, args[0])
     
     if build_err != "" {
         return fmt.aprintf("Compilation failed in %.3f seconds:\n%s", build_time, build_err)
@@ -97,13 +99,13 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
 @(private="file")
 parse_output :: proc(configs: utils.SchemaConfigs, profile: utils.SchemaProfile) -> string {
     output := configs.output
-
+    defer delete(output)
     is_debug := check_debug(profile.flags)
     
     output, _ = strings.replace(output, "{config}", is_debug ? "debug" : "release", -1)
     output, _ = strings.replace(output, "{arch}", profile.arch, -1)
-
-    if len(output) > 0 && output[len(output)-1] != '/' {
+    
+    if len(output) > 1 && output[len(output)-1] != '/' {
         output = strings.concatenate({output, "/"})
     }
 
@@ -127,6 +129,7 @@ create_output :: proc(sys: utils.System, output: string) -> string {
     curr := "."
     for dir in dirs {
         curr = strings.concatenate({curr, "/", dir})
+        defer delete(curr)
         if !sys.exists(curr) {
             err := sys.make_directory(curr)
             if err != nil {
@@ -142,29 +145,34 @@ create_output :: proc(sys: utils.System, output: string) -> string {
 execute_build :: proc(sys: utils.System, data: BuildData, buildCmd: string) -> (string, f64) {
     start_time := time.now()
 
-    cmd := strings.join({"odin", buildCmd}, " ")
+    cmd, _ := strings.join({"odin", buildCmd}, " ")
 
     if data.entry != "" {
-        cmd = strings.join({cmd, data.entry}, " ")
+        cmd, _ = strings.join({cmd, data.entry}, " ")
+        defer delete(cmd)
     }
 
     if data.output != "" {
         out := fmt.aprintf("-out:%s", data.output)
-        cmd = strings.join({cmd, out}, " ")
+        defer delete(out)
+        cmd, _ = strings.join({cmd, out}, " ")
+        defer delete(cmd)
     }
 
     if data.arch != "" {
         out := fmt.aprintf("-target:%s", data.arch)
-        cmd = strings.join({cmd, out}, " ")
+        defer delete(out)
+        cmd, _ = strings.join({cmd, out}, " ")
     }
     
     if len(data.flags) > 0 {
         for flag in data.flags {
-            cmd = strings.join({cmd, flag}, " ")
+            cmd, _ = strings.join({cmd, flag}, " ")
         }
     }
 
     logger.info(cmd)
+    delete(cmd)
 
     script_err := utils.process_script(sys, cmd)
     if script_err != "" {

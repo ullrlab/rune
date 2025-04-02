@@ -12,7 +12,22 @@ process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> 
     }
 
     if schema.configs.profile != "" && len(args) < 2 {
-        build_err := process_build(sys, args, schema, "run")
+        build_err := process_build(sys, args, schema)
+        return build_err
+    }
+
+    profile: string
+    if schema.configs.profile != "" && len(args) >=2 {
+        for p in schema.profiles {
+            if p.name == args[1] {
+                profile = p.name
+                break
+            }
+        }
+    }
+
+    if profile != "" {
+        build_err := process_build(sys, args, schema)
         return build_err
     }
 

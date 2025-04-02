@@ -21,7 +21,7 @@ should_fail_if_no_default_and_no_args :: proc(t: ^testing.T) {
         }
     }
 
-    run_err := cmds.process_run(sys, {}, schema)
+    run_err := cmds.process_run(sys, { "run" }, schema)
     testing.expect(t, run_err == "Run script not found", "Should have failed")
 }
 
@@ -35,8 +35,6 @@ should_fail_if_script_not_exists :: proc(t: ^testing.T) {
             profile = "default",
             target = "mock_target",
             target_type = "exe"
-        },
-        scripts = {
         }
     }
 
@@ -45,10 +43,29 @@ should_fail_if_script_not_exists :: proc(t: ^testing.T) {
     testing.expect_value(t, run_err , "Run script test doesn't exists")
 }
 
+mock_success_process_exec :: proc(
+    desc: os2.Process_Desc,
+    allocator: runtime.Allocator,
+    loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error)  {
+
+    
+    return {}, {}, {}, nil
+}
+
+mock_make_directory_no_err :: proc(name: string, perm: int = 0o755) -> os2.Error {
+    return nil
+}
+
+mock_exists :: proc(path: string) -> bool {
+    return true
+}
+
 @(test)
 should_run_script_without_issues :: proc(t: ^testing.T) {
     sys := utils.System {
-        process_exec = mock_success_process_exec
+        process_exec = mock_success_process_exec,
+        make_directory = mock_make_directory_no_err,
+        exists = mock_exists
     }
 
     schema := utils.Schema{
@@ -70,11 +87,39 @@ should_run_script_without_issues :: proc(t: ^testing.T) {
     testing.expect_value(t, run_err, "")
 }
 
-mock_success_process_exec :: proc(
-    desc: os2.Process_Desc,
-    allocator: runtime.Allocator,
-    loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error)  {
+@(test)
+should_run_build_if_not_default :: proc(t: ^testing.T) {
+    sys := utils.System {
+        process_exec = mock_success_process_exec,
+        make_directory = mock_make_directory_no_err,
+        exists = mock_exists
+    }
 
-    
-    return {}, {}, {}, nil
+    schema := utils.Schema{
+        configs = {
+            output = "mock_output",
+            profile = "default",
+            target = "mock_target",
+            target_type = "exe"
+        },
+        profiles = {
+            {
+                arch = "windows_amd64",
+                entry = ".",
+                name = "not_default",
+                flags = {
+                    "-debug"
+                }
+            }
+        },
+        scripts = {
+            "test" = "test"
+        }
+    }
+
+    defer delete(schema.scripts)
+
+    run_err := cmds.process_run(sys, { "run", "not_default" }, schema)
+    defer delete(run_err)
+    testing.expect_value(t, run_err, "")
 }

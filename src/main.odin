@@ -52,7 +52,7 @@ main :: proc() {
         case "-h":
             cmds.print_help()
         case "build":
-            err = cmds.process_build(sys, sys.args[1:], schema, "build")
+            err = cmds.process_build(sys, sys.args[1:], schema)
         case "run":
             err = cmds.process_run(sys, sys.args[1:], schema)
         case "test":
