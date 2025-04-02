@@ -5,6 +5,7 @@ import "base:runtime"
 import "core:testing"
 import "core:os/os2"
 
+import "../mocks"
 import "../../src/cmds"
 import "../../src/utils"
 
@@ -43,29 +44,12 @@ should_fail_if_script_not_exists :: proc(t: ^testing.T) {
     testing.expect_value(t, run_err , "Run script test doesn't exists")
 }
 
-mock_success_process_exec :: proc(
-    desc: os2.Process_Desc,
-    allocator: runtime.Allocator,
-    loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error)  {
-
-    
-    return {}, {}, {}, nil
-}
-
-mock_make_directory_no_err :: proc(name: string, perm: int = 0o755) -> os2.Error {
-    return nil
-}
-
-mock_exists :: proc(path: string) -> bool {
-    return true
-}
-
 @(test)
 should_run_script_without_issues :: proc(t: ^testing.T) {
     sys := utils.System {
-        process_exec = mock_success_process_exec,
-        make_directory = mock_make_directory_no_err,
-        exists = mock_exists
+        process_exec = mocks.mock_success_process_exec,
+        make_directory = mocks.mock_make_directory_no_err,
+        exists = mocks.mock_exists
     }
 
     schema := utils.Schema{
