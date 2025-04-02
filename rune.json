@@ -10,7 +10,10 @@
         {
             "name": "release",
             "arch": "windows_amd64",
-            "entry": "src"
+            "entry": "src",
+            "buildFlags": [
+                "-vet"
+            ]
         }
     ],
     "scripts": {

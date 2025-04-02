@@ -1,13 +1,13 @@
 #+feature dynamic-literals
 package main
 
-import "core:fmt"
 import "core:os/os2"
 import "core:strings"
 
 import "cmds"
 import "logger"
 import "utils"
+
 
 main :: proc() {
     version := "0.0.31"

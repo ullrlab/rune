@@ -270,9 +270,9 @@ process_copy :: proc(sys: utils.System, original_from: string, from: string, to:
     }
 
     extra := strings.trim_prefix(from, original_from)
-    to := strings.concatenate({to, extra})
+    real_to := strings.concatenate({to, extra})
     
-    copy_err := sys.copy_file(to, from)
+    copy_err := sys.copy_file(real_to, from)
     if copy_err != nil{
         return fmt.aprintf("Failed to copy: %s", copy_err)
     }

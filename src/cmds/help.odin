@@ -1,7 +1,5 @@
 package cmds
 
-import "core:fmt"
-
 import "../logger"
 
 print_help :: proc() {
