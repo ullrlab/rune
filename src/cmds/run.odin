@@ -12,21 +12,20 @@ process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> 
     }
 
     if schema.configs.profile != "" && len(args) < 2 {
-        process_build(sys, args, schema, "run")
-        return ""
+        build_err := process_build(sys, args, schema, "run")
+        return build_err
     }
 
-    script_name := args[1]
     script: string
     for key in schema.scripts {
-        if key == script_name {
+        if key == args[1] {
             script = schema.scripts[key]
             break
         }
     }
 
     if script == "" {
-        return fmt.aprintf("Run script %s does not exist", script_name)
+        return fmt.aprintf("Run script %s doesn't exists", args[1])
     }
 
     start_time := time.now()
@@ -36,6 +35,7 @@ process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> 
         return fmt.aprintf("Failed to execute script in %.3f seconds:\n%s", time.duration_seconds(time.since(start_time)), script_err)
     } else {
         msg := fmt.aprintf("Execute script in %.3f seconds", time.duration_seconds(time.since(start_time)))
+        defer delete(msg)
         logger.success(msg)
     }
 
