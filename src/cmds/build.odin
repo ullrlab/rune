@@ -39,6 +39,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema) -
 
     output := parse_output(schema.configs, profile)
     defer delete(output)
+
     output_err := create_output(sys, output)
     if output_err != "" {
         return output_err
@@ -49,7 +50,8 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema) -
         return fmt.aprintf("Failed to get extension for %s", profile.arch)
     }
 
-    output, _ = strings.concatenate({output, schema.configs.target, ext})
+    output_w_target, _ := strings.concatenate({output, schema.configs.target, ext})
+    defer delete(output_w_target)
 
     if len(profile.pre_build.scripts) > 0 {
         pre_build_err, pre_build_time := execute_pre_build(sys, profile.pre_build.scripts, schema.scripts)
@@ -67,31 +69,37 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema) -
 
     build_err, build_time := execute_build(sys, BuildData{
         entry = profile.entry,
-        output = output,
+        output = output_w_target,
         flags = profile.flags,
         arch = profile.arch
     }, args[0])
+    defer delete(build_err)
     
     if build_err != "" {
         return fmt.aprintf("Compilation failed in %.3f seconds:\n%s", build_time, build_err)
     } else {
         msg := fmt.aprintf("Compilation succeeded in %.3f seconds", build_time)
         logger.info(msg)
+        delete(msg)
     }
 
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
         post_build_err, post_build_time := execute_post_build(sys, profile.post_build, schema.scripts)
+        defer delete(post_build_err)
 
         if post_build_err != "" {
             return fmt.aprintf("Post build failed in %.3f seconds:\n%s", post_build_time, post_build_err)
         } else {
             msg := fmt.aprintf("Post build completed in %.3f seconds", post_build_time)
             logger.info(msg)
+            delete(msg)
         }
     }
 
     total_time := time.duration_seconds(time.since(start_time))
-    logger.success(fmt.aprintf("Build completed in %.3f seconds", total_time))
+    msg := fmt.aprintf("Build completed in %.3f seconds", total_time)
+    logger.success(msg)
+    delete(msg)
 
     return ""
 }
@@ -126,12 +134,13 @@ create_output :: proc(sys: utils.System, output: string) -> string {
     dirs, _ := strings.split(output, "/")
     defer delete(dirs)
 
-    curr := "."
+    curr := strings.clone(".")
     defer delete(curr)
 
     for dir in dirs {
-        arr := [?]string{ curr, "/", dir }
-        curr, _ = strings.concatenate(arr[:])
+        new_curr, _ := strings.concatenate({ curr, "/", dir })
+        delete(curr)
+        curr = new_curr
 
         if !sys.exists(curr) {
             err := sys.make_directory(curr)
@@ -141,8 +150,6 @@ create_output :: proc(sys: utils.System, output: string) -> string {
         }
     }
 
-    delete(curr)
-
     return ""
 }
 
@@ -151,33 +158,39 @@ execute_build :: proc(sys: utils.System, data: BuildData, buildCmd: string) -> (
     start_time := time.now()
 
     cmd, _ := strings.join({"odin", buildCmd}, " ")
+    defer delete(cmd)
 
     if data.entry != "" {
-        cmd, _ = strings.join({cmd, data.entry}, " ")
-        defer delete(cmd)
+        new_cmd, _ := strings.join({cmd, data.entry}, " ")
+        delete(cmd)
+        cmd = new_cmd
     }
 
     if data.output != "" {
         out := fmt.aprintf("-out:%s", data.output)
-        defer delete(out)
-        cmd, _ = strings.join({cmd, out}, " ")
-        defer delete(cmd)
+        new_cmd, _ := strings.join({cmd, out}, " ")
+        delete(out)
+        delete(cmd) 
+        cmd = new_cmd
     }
 
     if data.arch != "" {
         out := fmt.aprintf("-target:%s", data.arch)
-        defer delete(out)
-        cmd, _ = strings.join({cmd, out}, " ")
+        new_cmd, _ := strings.join({cmd, out}, " ")
+        delete(out)
+        delete(cmd)
+        cmd = new_cmd
     }
     
     if len(data.flags) > 0 {
         for flag in data.flags {
-            cmd, _ = strings.join({cmd, flag}, " ")
+            new_cmd, _ := strings.join({cmd, flag}, " ")
+            delete(cmd)
+            cmd = new_cmd
         }
     }
 
     logger.info(cmd)
-    delete(cmd)
 
     script_err := utils.process_script(sys, cmd)
     if script_err != "" {
@@ -186,6 +199,7 @@ execute_build :: proc(sys: utils.System, data: BuildData, buildCmd: string) -> (
     
     return "", time.duration_seconds(time.since(start_time))
 }
+
 
 @(private="file")
 execute_pre_build :: proc(sys: utils.System, step_scripts: []string, script_list: map[string]string) -> (string, f64) {
@@ -238,9 +252,10 @@ execute_scripts :: proc(sys: utils.System, step_scripts: []string, script_list: 
 @(private="file")
 process_copy :: proc(sys: utils.System, original_from: string, from: string, to: string) -> string {
     if sys.is_dir(from) {
-
         extra := strings.trim_prefix(from, original_from)
-        new_dir := strings.concatenate({to, extra})
+        new_dir, _ := strings.concatenate({to, extra})
+        defer delete(new_dir)
+
         if !sys.exists(new_dir) {
             err := sys.make_directory(new_dir)
             if err != nil {
@@ -263,6 +278,7 @@ process_copy :: proc(sys: utils.System, original_from: string, from: string, to:
         copy_err: string
         for file in files {
             name, _ := strings.replace(file.fullpath, "\\", "/", -1)
+            defer delete(name)
             copy_err = process_copy(sys, original_from, name, to)
             if copy_err != "" {
                 return copy_err
