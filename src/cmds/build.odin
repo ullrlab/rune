@@ -98,11 +98,9 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema) -
 
 @(private="file")
 parse_output :: proc(configs: utils.SchemaConfigs, profile: utils.SchemaProfile) -> string {
-    output := configs.output
-    defer delete(output)
     is_debug := check_debug(profile.flags)
     
-    output, _ = strings.replace(output, "{config}", is_debug ? "debug" : "release", -1)
+    output, _ := strings.replace(configs.output, "{config}", is_debug ? "debug" : "release", -1)
     output, _ = strings.replace(output, "{arch}", profile.arch, -1)
     
     if len(output) > 1 && output[len(output)-1] != '/' {
@@ -125,18 +123,25 @@ check_debug :: proc(flags: []string) -> bool {
 
 @(private="file")
 create_output :: proc(sys: utils.System, output: string) -> string {
-    dirs := strings.split(output, "/")
+    dirs, _ := strings.split(output, "/")
+    defer delete(dirs)
+
     curr := "."
+    defer delete(curr)
+
     for dir in dirs {
-        curr = strings.concatenate({curr, "/", dir})
-        defer delete(curr)
+        arr := [?]string{ curr, "/", dir }
+        curr, _ = strings.concatenate(arr[:])
+
         if !sys.exists(curr) {
             err := sys.make_directory(curr)
             if err != nil {
-                return fmt.aprintf("Error occurred while trying to create output directory %s: %s", curr, err)
+                return fmt.aprintf("Error occurred while trying to create output directory %s", curr)
             }
         }
     }
+
+    delete(curr)
 
     return ""
 }
