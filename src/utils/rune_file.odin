@@ -25,25 +25,24 @@ read_root_file :: proc(sys: System) -> (Schema, bool) {
     return schema, true
 }
 
-write_root_file :: proc(sys: System, schema: SchemaJon) {
+write_root_file :: proc(sys: System, schema: SchemaJon) -> string {
     path := "./rune.json"
     if sys.exists(path) {
-        logger.error("rune.json already exists")
-        return
+        return "rune.json already exists"
     }
 
     json_data, err := json.marshal(schema, { pretty = true, use_enum_names = true })
     defer delete(json_data)
     if err != nil {
-        logger.error(fmt.aprintf("Failed to create rune.json:\n%s", err))
-        return
+        return fmt.aprintf("Failed to create rune.json:\n%s", err)
     }
 
     werr := sys.write_entire_file(path, json_data)
     if werr != nil {
-        logger.error(fmt.aprintf("Failed to write schema to rune.json:\n%s", werr))
-        return
+        return fmt.aprintf("Failed to write schema to rune.json:\n%s", werr)
     }
 
     logger.success("Done!")
+
+    return ""
 }

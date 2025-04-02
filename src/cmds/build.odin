@@ -23,31 +23,28 @@ BuildData :: struct {
 }
 
 // Process the "build [profile?]" command.
-process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, buildCmd: string) {
+process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, buildCmd: string) -> string {
     start_time := time.now()
     if schema.configs.profile == "" && len(args) < 2 {
-        logger.error("No default profile was set. Define one or rerun using `rune build [profile]`")
-        return
+        return "No default profile was set. Define one or rerun using `rune build [profile]`"
     }
 
     profile_name := len(args) > 1 ? args[1] : schema.configs.profile
 
     profile, profile_ok := utils.get_profile(schema, profile_name)
     if !profile_ok {
-        msg := fmt.aprintf("Failed to find \"%s\" in the list of profiles", profile_name)
-        logger.error(msg)
-        return
+        return fmt.aprintf("Failed to find \"%s\" in the list of profiles", profile_name)
     }
 
     output := parse_output(schema.configs, profile)
-    output_ok := create_output(sys, output)
-    if !output_ok {
-        return
+    output_err := create_output(sys, output)
+    if output_err != "" {
+        return output_err
     }
     
     ext, ext_ok := utils.get_extension(profile.arch, schema.configs.target_type)
     if !ext_ok {
-        return
+        return fmt.aprintf("Failed to get extension for %s", profile.arch)
     }
 
     output = strings.concatenate({output, schema.configs.target, ext})
@@ -72,13 +69,9 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
         flags = profile.flags,
         arch = profile.arch
     }, buildCmd)
-    defer delete(build_err)
     
     if build_err != "" {
-        msg := fmt.aprintf("Compilation failed in %.3f seconds\n", build_time)
-        logger.error(msg)
-        logger.info(build_err)
-        return
+        return fmt.aprintf("Compilation failed in %.3f seconds:\n%s", build_time, build_err)
     } else {
         msg := fmt.aprintf("Compilation succeeded in %.3f seconds", build_time)
         logger.info(msg)
@@ -86,12 +79,9 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
 
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
         post_build_err, post_build_time := execute_post_build(sys, profile.post_build, schema.scripts)
-        defer delete(post_build_err)
 
         if post_build_err != "" {
-            msg := fmt.aprintf("Post build failed in %.3f seconds\n", post_build_time)
-            logger.error(msg)
-            logger.info(post_build_err)
+            return fmt.aprintf("Post build failed in %.3f seconds:\n%s", post_build_time, post_build_err)
         } else {
             msg := fmt.aprintf("Post build completed in %.3f seconds", post_build_time)
             logger.info(msg)
@@ -100,6 +90,8 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema, b
 
     total_time := time.duration_seconds(time.since(start_time))
     logger.success(fmt.aprintf("Build completed in %.3f seconds", total_time))
+
+    return ""
 }
 
 @(private="file")
@@ -130,7 +122,7 @@ check_debug :: proc(flags: []string) -> bool {
 }
 
 @(private="file")
-create_output :: proc(sys: utils.System, output: string) -> bool {
+create_output :: proc(sys: utils.System, output: string) -> string {
     dirs := strings.split(output, "/")
     curr := "."
     for dir in dirs {
@@ -138,14 +130,12 @@ create_output :: proc(sys: utils.System, output: string) -> bool {
         if !sys.exists(curr) {
             err := sys.make_directory(curr)
             if err != nil {
-                msg := fmt.aprintf("Error occurred while trying to create output directory %s: %s", curr, err)
-                logger.error(msg)
-                return false
+                return fmt.aprintf("Error occurred while trying to create output directory %s: %s", curr, err)
             }
         }
     }
 
-    return true
+    return ""
 }
 
 @(private="file")

@@ -12,7 +12,7 @@ GREEN  := "\033[32m"
 YELLOW := "\033[33m"
 
 error :: proc(msg: string) {
-    print_msg := fmt.aprintf("%s %s%s", RED, msg, RESET)
+    print_msg := fmt.aprintf("%s%s%s", RED, msg, RESET)
     fmt.println(print_msg)
     delete(print_msg)
 }

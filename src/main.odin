@@ -10,7 +10,7 @@ import "utils"
 
 
 main :: proc() {
-    version := "0.0.31"
+    version := "0.0.32"
 
     sys := utils.System {
         args = os2.args,
@@ -39,6 +39,9 @@ main :: proc() {
         return;
     }
 
+    err: string
+    defer delete(err)
+
     switch cmd {
         case "--version":
             logger.info(version)
@@ -49,14 +52,18 @@ main :: proc() {
         case "-h":
             cmds.print_help()
         case "build":
-            cmds.process_build(sys, sys.args[1:], schema, "build")
+            err = cmds.process_build(sys, sys.args[1:], schema, "build")
         case "run":
-            cmds.process_run(sys, sys.args[1:], schema)
+            err = cmds.process_run(sys, sys.args[1:], schema)
         case "test":
             cmds.process_test()
         case "new":
-            cmds.process_new(sys, sys.args[1:])
+            err = cmds.process_new(sys, sys.args[1:])
         case:
             cmds.print_help()
+    }
+
+    if err != "" {
+        logger.error(err)
     }
 }
