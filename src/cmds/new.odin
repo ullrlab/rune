@@ -42,10 +42,13 @@ process_new :: proc(sys: utils.System, args: []string) -> string {
 @(private="file")
 validate_build_mode :: proc(args: []string) -> string {
     if len(args) < 2 {
-        msg := "Please specify build mode by running \"rune new [build_mode] [target_name]\"\nValid build modes:"
+        msg := strings.clone("Please specify build mode by running \"rune new [build_mode] [target_name]\"\nValid build modes:")
         for type in utils.project_types {
-            msg = strings.join({msg, fmt.aprintf("\t%s", type)}, "\n")
+            tmp := strings.join({msg, fmt.aprintf("\t%s", type)}, "\n")
+            delete(msg)
+            msg = tmp
         }
+
         return msg
     }
 
