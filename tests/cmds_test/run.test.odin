@@ -49,7 +49,7 @@ should_run_script_without_issues :: proc(t: ^testing.T) {
     sys := utils.System {
         process_exec = mocks.mock_success_process_exec,
         make_directory = mocks.mock_make_directory_no_err,
-        exists = mocks.mock_exists
+        exists = mocks.mock_exists_true
     }
 
     schema := utils.Schema{
@@ -74,9 +74,9 @@ should_run_script_without_issues :: proc(t: ^testing.T) {
 @(test)
 should_run_build_if_not_default :: proc(t: ^testing.T) {
     sys := utils.System {
-        process_exec = mock_success_process_exec,
-        make_directory = mock_make_directory_no_err,
-        exists = mock_exists
+        process_exec = mocks.mock_success_process_exec,
+        make_directory = mocks.mock_make_directory_no_err,
+        exists = mocks.mock_exists_true
     }
 
     schema := utils.Schema{

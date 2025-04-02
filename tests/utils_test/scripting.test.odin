@@ -41,7 +41,7 @@ process_valid_script :: proc(t: ^testing.T) {
 
     res := utils.process_script(sys, "")
     defer delete(res)
-    testing.expect(t, res == "", "Failed to execute script")
+    testing.expect_value(t, res, "")
 }
 
 @(test)
@@ -52,9 +52,7 @@ process_err_script :: proc(t: ^testing.T) {
 
     res := utils.process_script(sys, "test")
     defer delete(res)
-    str := fmt.aprintf("Failed to execute script: %s", res)
-    defer delete(str)
-    testing.expect(t, res == "Script test could not be run", str)
+    testing.expect_value(t, res, "Script test could not be run")
 }
 
 @(test)
@@ -64,8 +62,5 @@ process_stderr_script :: proc(t: ^testing.T) {
     }
 
     res := utils.process_script(sys, "test")
-    defer delete(res)
-    str := fmt.aprintf("Failed to execute script: %s", res)
-    defer delete(str)
     testing.expect_value(t, res, err_msg)
 }
