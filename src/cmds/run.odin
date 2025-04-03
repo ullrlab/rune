@@ -46,6 +46,7 @@ process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> 
     start_time := time.now()
 
     script_err := utils.process_script(sys, script)
+    defer delete(script_err)
     if script_err != "" {
         return fmt.aprintf("Failed to execute script in %.3f seconds:\n%s", time.duration_seconds(time.since(start_time)), script_err)
     } else {
