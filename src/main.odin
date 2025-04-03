@@ -10,10 +10,9 @@ import "utils"
 
 
 main :: proc() {
-    version := "0.0.33"
+    version := "0.0.34"
 
     sys := utils.System {
-        args = os2.args,
         exists = os2.exists,
         make_directory = os2.make_directory,
         copy_file = os2.copy_file,
@@ -26,13 +25,13 @@ main :: proc() {
         process_exec = os2.process_exec
     }
 
-    if len(sys.args) < 2 {
+    if len(os2.args) < 2 {
         cmds.print_help()
         return
     }
 
     schema, has_schema := utils.read_root_file(sys)
-    cmd := strings.to_lower(sys.args[1])
+    cmd := strings.to_lower(os2.args[1])
 
     if !has_schema && cmd != "new" {
         logger.error("rune.json does not exists. Run \"rune new [build_mode] [target]\"")
@@ -52,13 +51,13 @@ main :: proc() {
         case "-h":
             cmds.print_help()
         case "build":
-            err = cmds.process_build(sys, sys.args[1:], schema)
+            err = cmds.process_build(sys, os2.args[1:], schema)
         case "run":
-            err = cmds.process_run(sys, sys.args[1:], schema)
+            err = cmds.process_run(sys, os2.args[1:], schema)
         case "test":
-            cmds.process_test()
+            cmds.process_test(sys, os2.args[1:], schema)
         case "new":
-            err = cmds.process_new(sys, sys.args[1:])
+            err = cmds.process_new(sys, os2.args[1:])
         case:
             cmds.print_help()
     }

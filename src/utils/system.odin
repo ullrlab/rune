@@ -4,7 +4,6 @@ import "base:runtime"
 import "core:os/os2"
 
 System :: struct {
-    args: []string,
     exists: proc(path: string) -> bool,
     make_directory: proc(name: string, perm: int = 0o755) -> os2.Error,
     copy_file: proc(dst_path: string, src_path: string) -> os2.Error,
