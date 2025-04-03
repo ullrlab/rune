@@ -65,5 +65,8 @@ main :: proc() {
 
     if err != "" {
         logger.error(err)
+        delete(err)
     }
+
+    delete(schema.scripts)
 }

@@ -15,7 +15,7 @@ process_script :: proc(sys: System, script: string) -> string {
     defer delete(stdout)
 
     if err != nil {
-        return fmt.aprintf("Script %s could not be run", script)
+        return fmt.aprintf("Script %s failed with %s", script, err)
     }
 
     if len(stderr) > 0 {

@@ -118,7 +118,9 @@ get_extension :: proc(arch: string, type: string) -> (string, bool) {
     platform, platform_supported := get_platform(arch)
     if !platform_supported {
         msg := fmt.aprintf("Architecture \"%s\" is not supported", arch)
+        defer delete(msg)
         logger.error(msg)
+        
         return "", false
     }
 

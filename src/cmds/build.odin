@@ -20,7 +20,7 @@ BuildData :: struct {
     entry:  string,
     output: string,
     flags:  []string,
-    arch: string
+    arch:   string
 }
 
 // Process the "build [profile?]" command.
@@ -55,15 +55,13 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema) -
 
     if len(profile.pre_build.scripts) > 0 {
         pre_build_err, pre_build_time := execute_pre_build(sys, profile.pre_build.scripts, schema.scripts)
-        defer delete(pre_build_err)
 
         if pre_build_err != "" {
-            msg := fmt.aprintf("Pre build failed in %.3f seconds\n", pre_build_time)
-            logger.error(msg)
-            logger.info(pre_build_err)
+            return fmt.aprintf("Pre build failed in %.3f seconds:\n%s", pre_build_time, pre_build_err)
         } else {
             msg := fmt.aprintf("Pre build completed in %.3f seconds", pre_build_time)
             logger.success(msg)
+            delete(msg)
         }
     }
 
@@ -237,12 +235,12 @@ execute_scripts :: proc(sys: utils.System, step_scripts: []string, script_list: 
     for script_name in step_scripts {
         script := script_list[script_name] or_else ""
         if script == "" {
-            return fmt.aprintf("Script \"%s\" is not defined in rune.json", script)
+            return fmt.aprintf("Script %s is not defined in rune.json", script_name)
         }
 
         script_err := utils.process_script(sys, script)
         if script_err != "" {
-            return fmt.aprintf("Failed to execute script \"%s\":\n%s", script, script_err)
+            return script_err
         }
     }
 
@@ -271,6 +269,7 @@ process_copy :: proc(sys: utils.System, original_from: string, from: string, to:
 
         files: []os2.File_Info
         files, err = sys.read_dir(dir, -1, context.allocator)
+        defer delete(files)
         if err != nil {
             return fmt.aprintf("Failed to read files from %s: %s", from, err)
         }
