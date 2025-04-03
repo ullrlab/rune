@@ -58,11 +58,10 @@ process_copy :: proc(sys: System, original_from: string, from: string, to: strin
             return fmt.aprintf("Failed to read files from %s: %s", from, err)
         }
 
-        copy_err: string
         for file in files {
             name, _ := strings.replace(file.fullpath, "\\", "/", -1)
             defer delete(name)
-            copy_err = process_copy(sys, original_from, name, to)
+            copy_err := process_copy(sys, original_from, name, to)
             if copy_err != "" {
                 return copy_err
             }

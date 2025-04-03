@@ -47,22 +47,31 @@ mock_exists_false:: proc(path: string) -> bool {
     return false
 }
 
-mock_open :: proc(path: string, flags := os2.File_Flags{.Read}, perm := 0o777) -> (^os2.File, os2.Error) {
+mock_open_ok :: proc(path: string, flags := os2.File_Flags{.Read}, perm := 0o777) -> (^os2.File, os2.Error) {
     file := new(os2.File)
     defer free(file)
 
     return file, nil
 }
 
+mock_open_err :: proc(path: string, flags := os2.File_Flags{.Read}, perm := 0o777) -> (^os2.File, os2.Error) {
+
+    return nil, os2.General_Error.Exist
+}
+
 mock_close :: proc(f: ^os2.File) -> os2.Error {
     return nil
 }
 
-mock_read_dir_success :: proc(fd: ^os2.File, n: int, allocator := context.allocator) -> ([]os2.File_Info, os2.Error) {
+mock_read_dir_ok :: proc(fd: ^os2.File, n: int, allocator := context.allocator) -> ([]os2.File_Info, os2.Error) {
     return {}, nil
 }
 
-mock_copy_file_success :: proc(dst_path: string, src_path: string) -> os2.Error {
+mock_read_dir_err :: proc(fd: ^os2.File, n: int, allocator := context.allocator) -> ([]os2.File_Info, os2.Error) {
+    return {}, os2.General_Error.Exist
+}
+
+mock_copy_file_ok :: proc(dst_path: string, src_path: string) -> os2.Error {
     return nil
 }
 
