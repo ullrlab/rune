@@ -3,6 +3,7 @@
 
     config:     Build mode
     arch:       Targeted architecture
+    profile:    Name of the profile
 */
 
 package cmds
@@ -107,6 +108,7 @@ parse_output :: proc(configs: utils.SchemaConfigs, profile: utils.SchemaProfile)
     
     output, _ := strings.replace(configs.output, "{config}", is_debug ? "debug" : "release", -1)
     output, _ = strings.replace(output, "{arch}", profile.arch, -1)
+    output, _ = strings.replace(output, "{profile}", profile.name, -1)
     
     if len(output) > 1 && output[len(output)-1] != '/' {
         output = strings.concatenate({output, "/"})

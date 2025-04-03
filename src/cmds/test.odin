@@ -9,6 +9,10 @@ process_test :: proc(sys: utils.System, args: []string, schema: utils.Schema) ->
     profile_name := len(args) > 1 && !strings.starts_with(args[1], "-") ? args[1] : schema.configs.test_profile
     profile, profile_ok := utils.get_profile(schema, profile_name)
     if !profile_ok {
+        if profile_name != "" {
+            return fmt.aprintf("Profile %s does not exists", profile_name)
+        }
+        
         return strings.clone("No test profile is defined")
     }
 
