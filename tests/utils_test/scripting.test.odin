@@ -5,38 +5,13 @@ import "core:os/os2"
 import "core:testing"
 import "core:fmt"
 
+import "../mocks"
 import "../../src/utils"
-
-mock_success_process_exec :: proc(
-    desc: os2.Process_Desc,
-    allocator: runtime.Allocator,
-    loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error)  {
-
-    
-    return {}, {}, {}, nil
-}
-
-err_msg := "MOCK_ERROR"
-
-mock_error_process_exec :: proc(
-    desc: os2.Process_Desc,
-    allocator: runtime.Allocator,\
-    loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error)  {
-        return {}, {}, {}, os2.General_Error.Permission_Denied
-}
-
-mock_stderr_process_exec :: proc(
-    desc: os2.Process_Desc,
-    allocator: runtime.Allocator,\
-    loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error)  {
-
-        return {}, {}, transmute([]byte)err_msg, nil
-}
 
 @(test)
 process_valid_script :: proc(t: ^testing.T) {
     sys := utils.System {
-        process_exec = mock_success_process_exec
+        process_exec = mocks.mock_success_process_exec
     }
 
     res := utils.process_script(sys, "")
@@ -47,7 +22,7 @@ process_valid_script :: proc(t: ^testing.T) {
 @(test)
 process_err_script :: proc(t: ^testing.T) {
     sys := utils.System {
-        process_exec = mock_error_process_exec
+        process_exec = mocks.mock_err_process_exec
     }
 
     res := utils.process_script(sys, "test")
@@ -58,9 +33,21 @@ process_err_script :: proc(t: ^testing.T) {
 @(test)
 process_stderr_script :: proc(t: ^testing.T) {
     sys := utils.System {
-        process_exec = mock_stderr_process_exec
+        process_exec = mocks.mock_stderr_process_exec
     }
 
     res := utils.process_script(sys, "test")
-    testing.expect_value(t, res, err_msg)
+    testing.expect_value(t, res, mocks.err_msg)
+}
+
+@(test)
+should_process_copy :: proc(t: ^testing.T) {
+    sys := utils.System {
+        is_dir = mocks.mock_is_dir_false,
+        copy_file = mocks.mock_copy_file_success
+    }
+
+    res := utils.process_copy(sys, ".", ".", ".")
+    defer delete(res)
+    testing.expect_value(t, res, "")
 }

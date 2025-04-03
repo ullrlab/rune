@@ -3,6 +3,8 @@ package mocks
 import "base:runtime"
 import "core:os/os2"
 
+err_msg := "MOCK_ERROR"
+
 mock_success_process_exec :: proc(
     desc: os2.Process_Desc,
     allocator: runtime.Allocator,
@@ -66,4 +68,8 @@ mock_copy_file_success :: proc(dst_path: string, src_path: string) -> os2.Error 
 
 mock_is_dir_true :: proc(path: string) -> bool {
     return true
+}
+
+mock_is_dir_false :: proc(path: string) -> bool {
+    return false
 }

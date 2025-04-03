@@ -216,7 +216,7 @@ execute_post_build :: proc(sys: utils.System, post_build: utils.SchemaPostBuild,
     start_time := time.now()
 
     for copy in post_build.copy {
-        copy_err := process_copy(sys, copy.from, copy.from, copy.to)
+        copy_err := utils.process_copy(sys, copy.from, copy.from, copy.to)
         if copy_err != "" {
             return copy_err, time.duration_seconds(time.since(start_time))
         }
@@ -242,57 +242,6 @@ execute_scripts :: proc(sys: utils.System, step_scripts: []string, script_list: 
         if script_err != "" {
             return script_err
         }
-    }
-
-    return ""
-}
-
-@(private="file")
-process_copy :: proc(sys: utils.System, original_from: string, from: string, to: string) -> string {
-    if sys.is_dir(from) {
-        extra := strings.trim_prefix(from, original_from)
-        new_dir, _ := strings.concatenate({to, extra})
-        defer delete(new_dir)
-
-        if !sys.exists(new_dir) {
-            err := sys.make_directory(new_dir)
-            if err != nil {
-                return fmt.aprintf("Failed to create directory %s: %s", new_dir, err)
-            }
-        }
-
-        dir, err := sys.open(from)
-        if err != nil {
-            return fmt.aprintf("Failed to open directory %s: %s", from, err)
-        }
-        defer sys.close(dir)
-
-        files: []os2.File_Info
-        files, err = sys.read_dir(dir, -1, context.allocator)
-        defer delete(files)
-        if err != nil {
-            return fmt.aprintf("Failed to read files from %s: %s", from, err)
-        }
-
-        copy_err: string
-        for file in files {
-            name, _ := strings.replace(file.fullpath, "\\", "/", -1)
-            defer delete(name)
-            copy_err = process_copy(sys, original_from, name, to)
-            if copy_err != "" {
-                return copy_err
-            }
-        }
-
-        return ""
-    }
-
-    extra := strings.trim_prefix(from, original_from)
-    real_to := strings.concatenate({to, extra})
-    
-    copy_err := sys.copy_file(real_to, from)
-    if copy_err != nil{
-        return fmt.aprintf("Failed to copy: %s", copy_err)
     }
 
     return ""
