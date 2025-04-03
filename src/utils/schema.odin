@@ -10,6 +10,7 @@ SchemaConfigs :: struct {
     output:         string  `json:"output"`,
     test_output:    string  `json:test_output`,
     profile:        string  `json:"profile"`,
+    test_profile:   string  `json:"test_profile"`,
     target_type:    string  `json:"targe_type"`
 }
 
@@ -26,14 +27,9 @@ SchemaProfile :: struct {
     name:       string          `json:"name"`,
     arch:       string          `json:"arch"`,
     entry:      string          `json:"entry"`,
-    flags:      []string        `json:"build_flags"`,
+    flags:      [dynamic]string        `json:"build_flags"`,
     pre_build:  SchemaPreBuild  `json:"pre_build"`,
     post_build: SchemaPostBuild `json:"post_build"`
-}
-
-SchemaTestProfile :: struct {
-    name:       string          `json:"name"`,
-    flags:      []string        `json:"build_flags"`
 }
 
 ExecuteAction :: distinct []string
@@ -41,7 +37,6 @@ ExecuteAction :: distinct []string
 Schema :: struct {
     configs:        SchemaConfigs       `json:"configs"`,
     profiles:       []SchemaProfile     `json:"profiles"`,
-    test_profiles:  []SchemaProfile     `json:"test_profiles"`,
     scripts:        map[string]string   `json:"scripts"`
 }
 
@@ -49,6 +44,5 @@ SchemaJon :: struct {
     schema:         string              `json:"$schema"`,
     configs:        SchemaConfigs       `json:"configs"`,
     profiles:       []SchemaProfile     `json:"profiles"`,
-    test_profiles:  []SchemaProfile     `json:"test_profiles"`,
     scripts:        map[string]string   `json:"scripts"`
 }

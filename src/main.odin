@@ -10,7 +10,7 @@ import "utils"
 
 
 main :: proc() {
-    version := "0.0.34"
+    version := "0.0.35"
 
     sys := utils.System {
         exists = os2.exists,
@@ -55,7 +55,7 @@ main :: proc() {
         case "run":
             err = cmds.process_run(sys, os2.args[1:], schema)
         case "test":
-            cmds.process_test(sys, os2.args[1:], schema)
+            err = cmds.process_test(sys, os2.args[1:], schema)
         case "new":
             err = cmds.process_new(sys, os2.args[1:])
         case:

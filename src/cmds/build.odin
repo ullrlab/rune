@@ -17,7 +17,7 @@ import "../utils"
 BuildData :: struct {
     entry:  string,
     output: string,
-    flags:  []string,
+    flags:  [dynamic]string,
     arch:   string
 }
 
@@ -116,7 +116,7 @@ parse_output :: proc(configs: utils.SchemaConfigs, profile: utils.SchemaProfile)
 }
 
 @(private="file")
-check_debug :: proc(flags: []string) -> bool {
+check_debug :: proc(flags: [dynamic]string) -> bool {
     for flag in flags {
         if flag == "-debug" {
             return true

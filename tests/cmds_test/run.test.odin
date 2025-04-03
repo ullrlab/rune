@@ -102,6 +102,7 @@ should_run_build_if_not_default :: proc(t: ^testing.T) {
     }
 
     defer delete(schema.scripts)
+    defer delete(schema.profiles[0].flags)
 
     run_err := cmds.process_run(sys, { "run", "not_default" }, schema)
     defer delete(run_err)
