@@ -10,7 +10,7 @@ import "utils"
 
 
 main :: proc() {
-    version := "0.0.35"
+    version := "0.0.36"
 
     sys := utils.System {
         exists = os2.exists,
