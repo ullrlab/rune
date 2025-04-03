@@ -22,7 +22,7 @@ process_script :: proc(sys: System, script: string) -> string {
     }
 
     if len(stderr) > 0 {
-        return string(stderr)
+        return strings.clone(string(stderr))
     }
 
     if len(stdout) > 0 {

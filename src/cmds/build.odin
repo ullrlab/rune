@@ -55,6 +55,7 @@ process_build :: proc(sys: utils.System, args: []string, schema: utils.Schema) -
 
     if len(profile.pre_build.scripts) > 0 {
         pre_build_err, pre_build_time := execute_pre_build(sys, profile.pre_build.scripts, schema.scripts)
+        defer delete(pre_build_err)
 
         if pre_build_err != "" {
             return fmt.aprintf("Pre build failed in %.3f seconds:\n%s", pre_build_time, pre_build_err)

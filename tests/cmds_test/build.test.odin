@@ -407,10 +407,10 @@ should_copy_files_in_post_build :: proc(t: ^testing.T) {
         process_exec = mocks.mock_success_process_exec,
         make_directory = mocks.mock_make_directory_no_err,
         exists = mocks.mock_exists_true,
-        open = mocks.mock_open,
+        open = mocks.mock_open_ok,
         close = mocks.mock_close,
-        read_dir = mocks.mock_read_dir_success,
-        copy_file = mocks.mock_copy_file_success,
+        read_dir = mocks.mock_read_dir_ok,
+        copy_file = mocks.mock_copy_file_ok,
         is_dir = mocks.mock_is_dir_true
     }
 

@@ -27,7 +27,7 @@ process_err_script :: proc(t: ^testing.T) {
 
     res := utils.process_script(sys, "test")
     defer delete(res)
-    testing.expect_value(t, res, "Script test could not be run")
+    testing.expect_value(t, res, "Script test failed with Exist")
 }
 
 @(test)
@@ -37,6 +37,7 @@ process_stderr_script :: proc(t: ^testing.T) {
     }
 
     res := utils.process_script(sys, "test")
+    defer delete(res)
     testing.expect_value(t, res, mocks.err_msg)
 }
 
