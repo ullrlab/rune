@@ -8,6 +8,7 @@ CopyAction :: struct {
 SchemaConfigs :: struct {
     target:         string  `json:"target"`,
     output:         string  `json:"output"`,
+    test_output:    string  `json:testOutput`,
     profile:        string  `json:"profile"`,
     target_type:    string  `json:"targetType"`
 }
@@ -25,9 +26,14 @@ SchemaProfile :: struct {
     name:       string          `json:"name"`,
     arch:       string          `json:"arch"`,
     entry:      string          `json:"entry"`,
-    flags:      []string        `json:"buildFlags,omitempty"`,
-    pre_build:  SchemaPreBuild  `json:"preBuild,omitempty"`,
-    post_build: SchemaPostBuild `json:"postBuild,omitempty"`
+    flags:      []string        `json:"buildFlags"`,
+    pre_build:  SchemaPreBuild  `json:"preBuild"`,
+    post_build: SchemaPostBuild `json:"postBuild"`
+}
+
+SchemaTestProfile :: struct {
+    name:       string          `json:"name"`,
+    flags:      []string        `json:"buildFlags"`
 }
 
 ExecuteAction :: distinct []string
@@ -39,8 +45,9 @@ Schema :: struct {
 }
 
 SchemaJon :: struct {
-    schema:     string              `json:"$schema"`,
-    configs:    SchemaConfigs       `json:"configs"`,
-    profiles:   []SchemaProfile     `json:"profiles"`,
-    scripts:    map[string]string   `json:"scripts"`
+    schema:         string              `json:"$schema"`,
+    configs:        SchemaConfigs       `json:"configs"`,
+    profiles:       []SchemaProfile     `json:"profiles"`,
+    test_profiles:  []SchemaProfile     `json:"testProfiles"`,
+    scripts:        map[string]string   `json:"scripts"`
 }

@@ -3,6 +3,8 @@
     "configs": {
         "target": "rune",
         "output": "bin/{config}/{arch}",
+        "testOutput": "none",
+        "testProfile": "default",
         "profile": "release",
         "targetType": "exe"
     },
@@ -12,6 +14,14 @@
             "arch": "windows_amd64",
             "entry": "src",
             "buildFlags": [
+                "-vet"
+            ]
+        }
+    ],
+    "testProfiles": [
+        {
+            "name": "default",
+            "flags": [
                 "-vet"
             ]
         }

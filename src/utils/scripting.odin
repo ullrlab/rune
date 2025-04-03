@@ -4,8 +4,6 @@ import "core:fmt"
 import "core:strings"
 import "core:os/os2"
 
-import "core:log"
-
 import "../logger"
 
 process_script :: proc(sys: System, script: string) -> string {

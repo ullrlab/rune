@@ -6,7 +6,9 @@
             "properties": {
                 "target": { "type": "string", "description": "Name of the build target" },
                 "output": { "type": "string", "description": "Output directory" },
+                "testOutput": { "type": "string", "description": "Output directory for tests. Defaults to no output", "default": "none" },
                 "profile": { "type": "string", "description": "Default profile to use" },
+                "testProfile": { "type": "string", "description": "Default test profile to use"},
                 "targetType": {
                     "type": "string",
                     "enum": [
@@ -86,6 +88,23 @@
                     }
                 },
                 "required": ["name", "arch", "entry"]
+            }
+        },
+        "testProfiles": {
+            "type": "array",
+            "description": "List of different test profiles that can be use",
+            "items": {
+                "type": "object",
+                "description": "Profile used for testing purposes",
+                "properties": {
+                    "name": { "type": "string", "description": "Name of the testing profile"},
+                    "buildFlags": {
+                        "type": "array",
+                        "description": "Build flags used by the profile",
+                        "items": { "type": "string", "description": "Build flag to use" }
+                    }
+                },
+                "required": ["name"]
             }
         },
         "scripts": {
