@@ -4,30 +4,20 @@ import "core:fmt"
 import "core:strings"
 import "core:os/os2"
 
-import "../logger"
-
-process_script :: proc(sys: System, script: string) -> string {
+process_script :: proc(sys: System, script: string) -> (string, string) {
     cmds := strings.split(script, " ")
     defer delete(cmds)
-    _, stdout, stderr, err := sys.process_exec({
+    _, stdout, stderr, process_err := sys.process_exec({
         command = cmds
     }, context.allocator)
 
     defer delete(stdout)
 
-    if err != nil {
-        return fmt.aprintf("Script %s failed with %s", script, err)
+    if process_err != nil {
+        return "", fmt.aprintf("Script %s failed with %s", script, process_err)
     }
 
-    if len(stderr) > 0 {
-        return strings.clone(string(stderr))
-    }
-
-    if len(stdout) > 0 {
-        logger.info(string(stdout))
-    }
-
-    return ""
+    return strings.clone(string(stdout)), strings.clone(string(stderr))
 }
 
 process_copy :: proc(sys: System, original_from: string, from: string, to: string) -> string {

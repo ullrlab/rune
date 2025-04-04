@@ -3,6 +3,7 @@ package cmds
 import "core:fmt"
 import "core:strings"
 
+import "../logger"
 import "../utils"
 
 process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> (success: string, err: string) {
@@ -42,8 +43,14 @@ process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> 
         return "", fmt.aprintf("Run script %s doesn't exists", args[1])
     }
 
-    script_err := utils.process_script(sys, script)
+    script_out, script_err := utils.process_script(sys, script)
+    defer delete(script_out)
     defer delete(script_err)
+
+    if script_out != "" {
+        logger.info(script_out)
+    }
+
     if script_err != "" {
         return "", fmt.aprintf("Failed to execute script:\n%s", script_err)
     }

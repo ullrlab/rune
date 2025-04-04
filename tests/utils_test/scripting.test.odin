@@ -11,7 +11,7 @@ process_valid_script :: proc(t: ^testing.T) {
         process_exec = mocks.mock_success_process_exec
     }
 
-    res := utils.process_script(sys, "")
+    _, res := utils.process_script(sys, "")
     defer delete(res)
     testing.expect_value(t, res, "")
 }
@@ -22,7 +22,7 @@ process_err_script :: proc(t: ^testing.T) {
         process_exec = mocks.mock_err_process_exec
     }
 
-    res := utils.process_script(sys, "test")
+    _, res := utils.process_script(sys, "test")
     defer delete(res)
     testing.expect_value(t, res, "Script test failed with Exist")
 }
@@ -33,7 +33,7 @@ process_stderr_script :: proc(t: ^testing.T) {
         process_exec = mocks.mock_stderr_process_exec
     }
 
-    res := utils.process_script(sys, "test")
+    _, res := utils.process_script(sys, "test")
     defer delete(res)
     testing.expect_value(t, res, mocks.err_msg)
 }

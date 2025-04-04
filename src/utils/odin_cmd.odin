@@ -95,7 +95,13 @@ execute_cmd :: proc(sys: System, data: BuildData, buildCmd: string) -> string {
 
     logger.info(cmd)
 
-    script_err := process_script(sys, cmd)
+    script_out, script_err := process_script(sys, cmd)
+    defer delete(script_out)
+
+    if script_out != "" {
+        logger.info(script_out)
+    }
+
     if script_err != "" {
         return script_err
     }
@@ -138,7 +144,13 @@ execute_scripts :: proc(sys: System, step_scripts: []string, script_list: map[st
             return fmt.aprintf("Script %s is not defined in rune.json", script_name)
         }
 
-        script_err := process_script(sys, script)
+        script_out, script_err := process_script(sys, script)
+        defer delete(script_out)
+
+        if script_out != "" {
+            logger.info(script_out)
+        }
+
         if script_err != "" {
             return script_err
         }
