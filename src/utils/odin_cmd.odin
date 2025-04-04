@@ -30,46 +30,36 @@ process_odin_cmd :: proc(
 
     if len(profile.pre_build.scripts) > 0 {
         pre_build_err := execute_pre_build(sys, profile.pre_build.scripts, scripts)
-        defer delete(pre_build_err)
 
         if pre_build_err != "" {
-            return fmt.aprintf("Pre build failed:\n%s", pre_build_err)
-        } else {
-            logger.success("Pre build completed")
+            return pre_build_err
         }
     }
 
-    build_err := execute_build(sys, BuildData{
+    cmd_err := execute_cmd(sys, BuildData{
         entry = profile.entry,
         output = output,
         flags = profile.flags,
         arch = profile.arch
     }, cmd)
-    defer delete(build_err)
     
-    if build_err != "" {
-        return fmt.aprintf("Compilation failed:\n%s", build_err)
-    } else {
-        msg := "Compilation success"
-        logger.info(msg)
+    if cmd_err != "" {
+        return cmd_err
     }
 
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
         post_build_err := execute_post_build(sys, profile.post_build, scripts)
-        defer delete(post_build_err)
 
         if post_build_err != "" {
-            return fmt.aprintf("Post build failed:\n%s", post_build_err)
-        } else {
-            logger.info("Post build completed")
+            return post_build_err
         }
     }
 
-    return "Build completed"
+    return ""
 }
 
 @(private="file")
-execute_build :: proc(sys: System, data: BuildData, buildCmd: string) -> string {
+execute_cmd :: proc(sys: System, data: BuildData, buildCmd: string) -> string {
     cmd, _ := strings.join({"odin", buildCmd}, " ")
     defer delete(cmd)
 

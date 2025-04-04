@@ -20,7 +20,7 @@ process_profile:: proc(
     profile: SchemaProfile,
     schema: Schema,
     cmd: string
-) -> (err: string) {
+) -> string {
 
     output := parse_output(schema.configs, profile)
     defer delete(output)
@@ -38,7 +38,7 @@ process_profile:: proc(
     output_w_target, _ := strings.concatenate({output, schema.configs.target, ext})
     defer delete(output_w_target)
 
-    err = process_odin_cmd(sys, profile, schema.scripts, output_w_target, cmd)
+    err := process_odin_cmd(sys, profile, schema.scripts, output_w_target, cmd)
     if err != "" {
         return err
     }
