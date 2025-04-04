@@ -33,7 +33,7 @@ should_build_default :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "")
 }
@@ -69,7 +69,7 @@ should_build_not_default :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build", "not_default" }, schema)
+    _, build_err := cmds.process_build(sys, { "build", "not_default" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "")
 }
@@ -100,7 +100,7 @@ should_fail_profile_not_found :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build", "not_default" }, schema)
+    _, build_err := cmds.process_build(sys, { "build", "not_default" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "Failed to find \"not_default\" in the list of profiles")
 }
@@ -131,7 +131,7 @@ should_fail_if_create_directory_fails :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "Error occurred while trying to create output directory ./mock_output")
 }
@@ -162,7 +162,7 @@ should_fail_if_get_extension_fails :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "Failed to get extension for invalid_arch")
 }
@@ -201,7 +201,7 @@ should_run_pre_build_scripts :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "")
 }
@@ -240,7 +240,7 @@ should_fail_if_invalid_pre_build_script :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "Pre build failed in 0.000 seconds:\nScript invalid_test is not defined in rune.json")
 }
@@ -279,7 +279,7 @@ should_fail_if_script_fails :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "Pre build failed in 0.000 seconds:\nScript test failed with Exist")
 }
@@ -318,7 +318,7 @@ should_fail_if_script_has_stderr :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "Pre build failed in 0.000 seconds:\nMOCK_ERROR")
 }
@@ -357,7 +357,7 @@ should_run_post_build_scripts :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "")
 }
@@ -396,7 +396,7 @@ should_fail_if_invalid_post_build_script :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "Post build failed in 0.000 seconds:\nScript invalid_test is not defined in rune.json")
 }
@@ -440,7 +440,7 @@ should_copy_files_in_post_build :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    build_err := cmds.process_build(sys, { "build" }, schema)
+    _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
     testing.expect_value(t, build_err, "")
 }
