@@ -1,9 +1,7 @@
 #+feature dynamic-literals
 package cmds_test
 
-import "base:runtime"
 import "core:testing"
-import "core:os/os2"
 
 import "../mocks"
 import "../../src/cmds"

@@ -1,9 +1,6 @@
 package utils_test
 
-import "base:runtime"
-import "core:os/os2"
 import "core:testing"
-import "core:fmt"
 
 import "../mocks"
 import "../../src/utils"
