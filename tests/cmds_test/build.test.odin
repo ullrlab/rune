@@ -33,9 +33,10 @@ should_build_default :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    _, build_err := cmds.process_build(sys, { "build" }, schema)
-    defer delete(build_err)
+    build_success, build_err := cmds.process_build(sys, { "build" }, schema)
+    defer delete(build_success)
     testing.expect_value(t, build_err, "")
+    testing.expect_value(t, build_success, "Build completed")
 }
 
 @(test)
@@ -69,9 +70,10 @@ should_build_not_default :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    _, build_err := cmds.process_build(sys, { "build", "not_default" }, schema)
-    defer delete(build_err)
+    build_success, build_err := cmds.process_build(sys, { "build", "not_default" }, schema)
+    defer delete(build_success)
     testing.expect_value(t, build_err, "")
+    testing.expect_value(t, build_success, "Build completed")
 }
 
 @(test)
@@ -201,9 +203,10 @@ should_run_pre_build_scripts :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    _, build_err := cmds.process_build(sys, { "build" }, schema)
-    defer delete(build_err)
+    build_success, build_err := cmds.process_build(sys, { "build" }, schema)
+    defer delete(build_success)
     testing.expect_value(t, build_err, "")
+    testing.expect_value(t, build_success, "Build completed")
 }
 
 @(test)
@@ -242,7 +245,7 @@ should_fail_if_invalid_pre_build_script :: proc(t: ^testing.T) {
 
     _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
-    testing.expect_value(t, build_err, "Pre build failed in 0.000 seconds:\nScript invalid_test is not defined in rune.json")
+    testing.expect_value(t, build_err, "Script invalid_test is not defined in rune.json")
 }
 
 @(test)
@@ -281,7 +284,7 @@ should_fail_if_script_fails :: proc(t: ^testing.T) {
 
     _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
-    testing.expect_value(t, build_err, "Pre build failed in 0.000 seconds:\nScript test failed with Exist")
+    testing.expect_value(t, build_err, "Script test failed with Exist")
 }
 
 @(test)
@@ -320,7 +323,7 @@ should_fail_if_script_has_stderr :: proc(t: ^testing.T) {
 
     _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
-    testing.expect_value(t, build_err, "Pre build failed in 0.000 seconds:\nMOCK_ERROR")
+    testing.expect_value(t, build_err, "MOCK_ERROR")
 }
 
 @(test)
@@ -357,9 +360,10 @@ should_run_post_build_scripts :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    _, build_err := cmds.process_build(sys, { "build" }, schema)
-    defer delete(build_err)
+    build_success, build_err := cmds.process_build(sys, { "build" }, schema)
+    defer delete(build_success)
     testing.expect_value(t, build_err, "")
+    testing.expect_value(t, build_success, "Build completed")
 }
 
 @(test)
@@ -398,7 +402,7 @@ should_fail_if_invalid_post_build_script :: proc(t: ^testing.T) {
 
     _, build_err := cmds.process_build(sys, { "build" }, schema)
     defer delete(build_err)
-    testing.expect_value(t, build_err, "Post build failed in 0.000 seconds:\nScript invalid_test is not defined in rune.json")
+    testing.expect_value(t, build_err, "Script invalid_test is not defined in rune.json")
 }
 
 @(test)
@@ -440,7 +444,8 @@ should_copy_files_in_post_build :: proc(t: ^testing.T) {
 
     defer delete(schema.scripts)
 
-    _, build_err := cmds.process_build(sys, { "build" }, schema)
-    defer delete(build_err)
+    build_success, build_err := cmds.process_build(sys, { "build" }, schema)
+    defer delete(build_success)
     testing.expect_value(t, build_err, "")
+    testing.expect_value(t, build_success, "Build completed")
 }
