@@ -7,8 +7,7 @@ import "../utils"
 
 process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> (success: string, err: string) {
     if schema.configs.profile == "" && len(args) < 2 {
-        err = strings.clone("Run script not found")
-        return "", err
+        return "", strings.clone("Run script not found")
     }
 
     if schema.configs.profile != "" && len(args) < 2 {
@@ -49,6 +48,5 @@ process_run :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> 
         return "", fmt.aprintf("Failed to execute script:\n%s", script_err)
     }
 
-    success = strings.clone("Successfully executed script")
-    return success, err
+    return strings.clone("Successfully executed script"), err
 }
