@@ -23,7 +23,8 @@
             "entry": "tests",
             "build_flags": [
                 "-vet",
-                "--all-packages"
+                "--all-packages",
+                "-define:ODIN_TEST_THREADS=1"
             ]
         }
     ],
