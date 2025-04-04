@@ -5,25 +5,25 @@ import "core:strings"
 
 import "../utils"
 
-process_test :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> string {
+process_test :: proc(sys: utils.System, args: []string, schema: utils.Schema) -> (success: string, err: string) {
     profile_name := len(args) > 1 && !strings.starts_with(args[1], "-") ? args[1] : schema.configs.test_profile
     profile, profile_ok := utils.get_profile(schema, profile_name)
     if !profile_ok {
         if profile_name != "" {
-            return fmt.aprintf("Profile %s does not exists", profile_name)
+            return "", fmt.aprintf("Profile %s does not exists", profile_name)
         }
         
-        return strings.clone("No test profile is defined")
+        return "", strings.clone("No test profile is defined")
     }
 
-    new_profile, err := get_flags(args, profile)
-    if err != "" {
-        return err
+    modified_profile, flags_err := get_flags(args, profile)
+    if flags_err != "" {
+        return "", flags_err
     }
 
-    fmt.println(new_profile)
+    err = utils.process_profile(sys, modified_profile, schema, "test")
 
-    return ""
+    return "", err
 }
 
 @(private="file")

@@ -1,8 +1,10 @@
 #+feature dynamic-literals
 package main
 
+import "core:fmt"
 import "core:os/os2"
 import "core:strings"
+import "core:time"
 
 import "cmds"
 import "logger"
@@ -10,7 +12,8 @@ import "utils"
 
 
 main :: proc() {
-    version := "0.0.36"
+    start_time := time.now()
+    version := "0.0.37"
 
     sys := utils.System {
         exists = os2.exists,
@@ -39,7 +42,10 @@ main :: proc() {
     }
 
     err: string
+    success: string
+
     defer delete(err)
+    defer delete(success)
 
     switch cmd {
         case "--version":
@@ -51,20 +57,29 @@ main :: proc() {
         case "-h":
             cmds.print_help()
         case "build":
-            err = cmds.process_build(sys, os2.args[1:], schema)
+            success, err = cmds.process_build(sys, os2.args[1:], schema)
         case "run":
-            err = cmds.process_run(sys, os2.args[1:], schema)
+            success, err = cmds.process_run(sys, os2.args[1:], schema)
         case "test":
-            err = cmds.process_test(sys, os2.args[1:], schema)
+            success, err = cmds.process_test(sys, os2.args[1:], schema)
         case "new":
             err = cmds.process_new(sys, os2.args[1:])
         case:
             cmds.print_help()
     }
 
+    total_time := time.duration_seconds(time.since(start_time))
+
     if err != "" {
-        logger.error(err)
-        delete(err)
+        msg := fmt.aprintf("\n%s: %.3f seconds", err, total_time)
+        logger.error(msg)
+        delete(msg)
+    }
+
+    if success != "" {
+        msg := fmt.aprintf("\n%s: %.3f seconds", success, total_time)
+        logger.success(msg)
+        delete(msg)
     }
 
     delete(schema.scripts)

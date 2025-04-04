@@ -25,8 +25,6 @@ mock_stderr_process_exec :: proc(
     desc: os2.Process_Desc,
     allocator: runtime.Allocator,
     loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error)  {
-
-    err_msg := "MOCK_ERROR"
     
     return {}, {}, transmute([]u8)err_msg, nil
 }
