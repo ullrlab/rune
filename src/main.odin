@@ -13,7 +13,7 @@ import "utils"
 
 main :: proc() {
     start_time := time.now()
-    version := "0.0.41"
+    version := "0.0.42"
 
     sys := utils.System {
         exists = os2.exists,
