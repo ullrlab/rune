@@ -17,3 +17,23 @@ should_create_rune_json_file :: proc(t: ^testing.T) {
     defer delete(res)
     testing.expect_value(t, res, "")
 }
+
+@(test)
+should_fail_if_invalid_build_mode :: proc(t: ^testing.T) {
+    sys := utils.System {
+    }
+
+    res := cmds.process_new(sys, { "new", "invalid", "test" })
+    defer delete(res)
+    testing.expect_value(t, res, "invalid is not supported as a build mode")
+}
+
+@(test)
+should_fail_if_no_target :: proc(t: ^testing.T) {
+    sys := utils.System {
+    }
+
+    res := cmds.process_new(sys, { "new", "test" })
+    defer delete(res)
+    testing.expect_value(t, res, "Please specify a target name by running \"rune new [build_mode] [target_name]\"")
+}
