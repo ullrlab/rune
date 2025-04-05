@@ -2,6 +2,7 @@ package utils
 
 import "core:encoding/json"
 import "core:fmt"
+import "core:strings"
 
 import "../logger"
 
@@ -28,7 +29,7 @@ read_root_file :: proc(sys: System) -> (Schema, bool) {
 write_root_file :: proc(sys: System, schema: SchemaJon) -> string {
     path := "./rune.json"
     if sys.exists(path) {
-        return "rune.json already exists"
+        return strings.clone("File rune.json already exists")
     }
 
     json_data, err := json.marshal(schema, { pretty = true, use_enum_names = true })
@@ -39,10 +40,8 @@ write_root_file :: proc(sys: System, schema: SchemaJon) -> string {
 
     werr := sys.write_entire_file(path, json_data)
     if werr != nil {
-        return fmt.aprintf("Failed to write schema to rune.json:\n%s", werr)
+        return fmt.aprintf("Failed to write schema to rune.json: %s", werr)
     }
-
-    logger.success("Done!")
 
     return ""
 }
