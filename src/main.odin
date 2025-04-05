@@ -13,7 +13,7 @@ import "utils"
 
 main :: proc() {
     start_time := time.now()
-    version := "0.0.40"
+    version := "0.0.41"
 
     sys := utils.System {
         exists = os2.exists,
@@ -68,21 +68,12 @@ main :: proc() {
             cmds.print_help()
     }
 
-    total_time := time.duration_seconds(time.since(start_time))
-
-    if err != "" && os2.args[1] != "test" {
-        msg := fmt.aprintf("\n%s: %.3f seconds", err, total_time)
-        logger.error(msg)
-        delete(msg)
-    }
-
-    if err != "" && os2.args[1] == "test" {
-        msg := fmt.aprintf("\n%s", err)
-        logger.info(msg)
-        delete(msg)
+    if err != "" {
+        logger.error(err)
     }
 
     if success != "" {
+        total_time := time.duration_seconds(time.since(start_time))
         msg := fmt.aprintf("\n%s: %.3f seconds", success, total_time)
         logger.success(msg)
         delete(msg)
