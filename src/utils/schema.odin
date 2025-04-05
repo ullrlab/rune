@@ -8,10 +8,10 @@ CopyAction :: struct {
 SchemaConfigs :: struct {
     target:         string  `json:"target"`,
     output:         string  `json:"output"`,
-    test_output:    string  `json:test_output`,
+    target_type:    string  `json:"target_type"`,
     profile:        string  `json:"profile"`,
     test_profile:   string  `json:"test_profile"`,
-    target_type:    string  `json:"targe_type"`
+    test_output:    string  `json:test_output`,
 }
 
 SchemaPreBuild :: struct {
