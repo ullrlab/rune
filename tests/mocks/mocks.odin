@@ -80,3 +80,11 @@ mock_is_dir_true :: proc(path: string) -> bool {
 mock_is_dir_false :: proc(path: string) -> bool {
     return false
 }
+
+mock_write_entire_file_ok :: proc(path: string, data: []byte, perm: int = 0o644, truncate := true) -> os2.Error {
+    return nil
+}
+
+mock_write_entire_file_err :: proc(path: string, data: []byte, perm: int = 0o644, truncate := true) -> os2.Error {
+    return os2.General_Error.Exist
+}

@@ -16,7 +16,10 @@ process_new :: proc(sys: utils.System, args: []string) -> string {
         return target_err
     }
 
-    arch := strings.to_lower(fmt.aprintf("%s_%s", ODIN_OS, ODIN_ARCH))
+    arch_raw := fmt.aprintf("%s_%s", ODIN_OS, ODIN_ARCH)
+    arch := strings.to_lower(arch_raw)
+    delete(arch_raw)
+    defer delete(arch)
 
     schema := utils.SchemaJon {
         schema = "https://raw.githubusercontent.com/ullrlab/rune/refs/heads/main/misc/rune.schema.json",
@@ -35,21 +38,23 @@ process_new :: proc(sys: utils.System, args: []string) -> string {
         }
     }
 
-    utils.write_root_file(sys, schema)
+    write_err := utils.write_root_file(sys, schema)
+    if write_err != "" {
+        return write_err
+    }
+
     return ""
 }
 
 @(private="file")
-validate_build_mode :: proc(args: []string) -> string {
+validate_build_mode :: proc(args: []string) -> (err: string) {
     if len(args) < 2 {
-        msg := strings.clone("Please specify build mode by running \"rune new [build_mode] [target_name]\"\nValid build modes:")
+        err = strings.clone("Please specify build mode by running \"rune new [build_mode] [target_name]\"\nValid build modes:")
         for type in utils.project_types {
-            tmp := strings.join({msg, fmt.aprintf("\t%s", type)}, "\n")
-            delete(msg)
-            msg = tmp
+            err = strings.join({err, fmt.aprintf("\t%s", type)}, "\n")
         }
 
-        return msg
+        return err
     }
 
     for type in utils.project_types {
@@ -64,7 +69,7 @@ validate_build_mode :: proc(args: []string) -> string {
 @(private="file")
 validate_target :: proc(args: []string) -> string {
     if len(args) < 3 {
-        return "Please specify a target name by running \"rune new [build_mode] [target_name]\""
+        return strings.clone("Please specify a target name by running \"rune new [build_mode] [target_name]\"")
     }
 
     return ""
