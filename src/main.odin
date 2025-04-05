@@ -63,7 +63,7 @@ main :: proc() {
         case "test":
             err = cmds.process_test(sys, os2.args[1:], schema)
         case "new":
-            err = cmds.process_new(sys, os2.args[1:])
+            success, err = cmds.process_new(sys, os2.args[1:])
         case:
             cmds.print_help()
     }

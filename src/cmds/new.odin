@@ -5,15 +5,15 @@ import "core:strings"
 
 import "../utils"
 
-process_new :: proc(sys: utils.System, args: []string) -> string {
+process_new :: proc(sys: utils.System, args: []string) -> (string, string) {
     build_mode_err := validate_build_mode(args)
     if build_mode_err != "" {
-        return build_mode_err
+        return "", build_mode_err
     }
 
     target_err := validate_target(args)
     if target_err != "" {
-        return target_err
+        return "", target_err
     }
 
     arch_raw := fmt.aprintf("%s_%s", ODIN_OS, ODIN_ARCH)
@@ -40,10 +40,10 @@ process_new :: proc(sys: utils.System, args: []string) -> string {
 
     write_err := utils.write_root_file(sys, schema)
     if write_err != "" {
-        return write_err
+        return "", write_err
     }
 
-    return ""
+    return strings.clone("Done"), ""
 }
 
 @(private="file")
