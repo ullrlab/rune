@@ -2,7 +2,14 @@ package cmds
 
 import "../logger"
 
-
+// print_help outputs the usage and available commands for the `rune` CLI tool.
+//
+// This function is called when the user invokes `rune -h` or `rune --help`.
+// It prints a structured list of commands, options, and examples to guide the user.
+//
+// Each logger.info call prints a specific line of the help message to the terminal.
+// The help text includes supported commands such as `new`, `build`, `test`, `run`,
+// and general flags like `--version` and `--help`.
 print_help :: proc() {
     logger.info("rune - A build profile tool for the Odin programming language");
     logger.info("");

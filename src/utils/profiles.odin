@@ -3,6 +3,15 @@ package utils
 import "core:fmt"
 import "core:strings"
 
+// Retrieves the profile with the specified name from the schema.
+//
+// Parameters:
+// - schema: The schema containing the profiles.
+// - name: The name of the profile to retrieve.
+//
+// Returns:
+// - SchemaProfile: The profile with the given name.
+// - bool: A flag indicating whether the profile was found.
 get_profile :: proc(schema: Schema, name: string) -> (SchemaProfile, bool) {
     for p in schema.profiles {
         if p.name != name {
@@ -15,6 +24,17 @@ get_profile :: proc(schema: Schema, name: string) -> (SchemaProfile, bool) {
     return {}, false
 }
 
+// Processes a profile by parsing the output, creating necessary directories,
+// and executing the build command with the specified profile.
+//
+// Parameters:
+// - sys: The system interface used for file operations.
+// - profile: The profile containing configuration settings for processing.
+// - schema: The schema containing additional configuration and scripts.
+// - cmd: The build command to execute (e.g., "build").
+//
+// Returns:
+// - string: An error message if any issue occurs during processing, or an empty string on success.
 process_profile:: proc(
     sys: System,
     profile: SchemaProfile,
@@ -46,6 +66,14 @@ process_profile:: proc(
     return ""
 }
 
+// Parses the output directory and filename template based on the profile and schema configuration.
+//
+// Parameters:
+// - configs: The configuration settings for output.
+// - profile: The profile containing specific values to be used in the output template.
+//
+// Returns:
+// - string: The parsed output path, with placeholders like "{config}", "{arch}", and "{profile}" replaced.
 @(private="file")
 parse_output :: proc(configs: SchemaConfigs, profile: SchemaProfile) -> string {
     is_debug := check_debug(profile.flags)
@@ -61,6 +89,13 @@ parse_output :: proc(configs: SchemaConfigs, profile: SchemaProfile) -> string {
     return output
 }
 
+// Checks if the "-debug" flag is present in the list of profile flags.
+//
+// Parameters:
+// - flags: The list of flags in the profile.
+//
+// Returns:
+// - bool: `true` if the "-debug" flag is present, otherwise `false`.
 @(private="file")
 check_debug :: proc(flags: [dynamic]string) -> bool {
     for flag in flags {
@@ -72,6 +107,14 @@ check_debug :: proc(flags: [dynamic]string) -> bool {
     return false
 }
 
+// Creates the necessary directories for the output path.
+//
+// Parameters:
+// - sys: The system interface used for file operations.
+// - output: The output path, which may include directories that need to be created.
+//
+// Returns:
+// - string: An error message if an error occurs while creating the directories, or an empty string on success.
 @(private="file")
 create_output :: proc(sys: System, output: string) -> string {
     dirs, _ := strings.split(output, "/")
