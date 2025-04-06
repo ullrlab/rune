@@ -13,7 +13,7 @@ import "utils"
 
 main :: proc() {
     start_time := time.now()
-    version := "0.0.42"
+    version := "0.1.1"
 
     sys := utils.System {
         exists = os2.exists,
@@ -25,7 +25,8 @@ main :: proc() {
         is_dir = os2.is_dir,
         read_entire_file_from_path = os2.read_entire_file_from_path,
         write_entire_file = os2.write_entire_file,
-        process_exec = os2.process_exec
+        process_exec = os2.process_exec,
+        get_executable_directory = os2.get_executable_directory
     }
 
     if len(os2.args) < 2 {

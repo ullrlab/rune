@@ -14,10 +14,10 @@ print_help :: proc() {
     logger.info("rune - A build profile tool for the Odin programming language");
     logger.info("");
     logger.info("Usage:");
-    logger.info("  rune <command> [options]");
+    logger.info("  rune command> [options]");
     logger.info("");
     logger.info("Commands:");
-    logger.info("  new <build-mode> <target>        Create a new rune.json file with the given build mode and output target.");
+    logger.info("  new [build-mode] <target>        Create a new rune.json file with the given build mode and output target.");
     logger.info("                                   Example: rune new debug bin/my_app");
     logger.info("");
     logger.info("  test [profile] [-t:<test>] [-f:<file>]");  

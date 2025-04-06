@@ -24,17 +24,16 @@ process_new :: proc(sys: utils.System, args: []string) -> (string, string) {
         return "", build_mode_err
     }
 
-    // Ensure a target name is provided
-    target_err := validate_target(args)
-    if target_err != "" {
-        return "", target_err
-    }
-
     // Construct architecture string from ODIN_OS and ODIN_ARCH
     arch_raw := fmt.aprintf("%s_%s", ODIN_OS, ODIN_ARCH)
     arch := strings.to_lower(arch_raw)
     delete(arch_raw)
     defer delete(arch)
+
+    target_name, target_err := parse_output_flag(sys, args)
+    if target_err != "" {
+        return "", target_err
+    }
 
     // Build the initial schema with default profile
     schema := utils.SchemaJon {
@@ -42,7 +41,7 @@ process_new :: proc(sys: utils.System, args: []string) -> (string, string) {
         configs = {
             target_type = args[1],
             output = "bin/{config}/{arch}",
-            target = args[2],
+            target = target_name,
             profile = "default"
         },
         profiles = {
@@ -61,6 +60,49 @@ process_new :: proc(sys: utils.System, args: []string) -> (string, string) {
     }
 
     return strings.clone("Done"), ""
+}
+
+// parse_output_flag retrieves the target name of the project from `rune new -o:<target_name>`.
+//
+// It looks for the -o:<target_name> flag and if it doesn't exists, returns the directory name
+// as targeted output name.
+//
+// Parameters:
+// - sys:  System interface for interacting with the file system.
+// - args: Command-line arguments from the CLI call.
+//
+// Returns:
+// - The targeted output name
+@(private="file")
+parse_output_flag :: proc(sys: utils.System, args: []string) -> (string, string) {
+    for arg in args {
+        if strings.starts_with(arg, "-o") {
+            output_arr := strings.split(arg, ":")
+            defer delete(output_arr)
+            if len(output_arr) != 2 {
+                return "", fmt.aprintf("Invalid output flag %s. Make sure it is formatted -o:<target_name>", arg)
+            }
+
+            return output_arr[1], ""
+        }
+    }
+
+    // If there's no -o:<target_name> flag, we get the directory name
+    full_path, get_dir_err := sys.get_executable_directory()
+    if get_dir_err != nil {
+        return "", fmt.aprintf("Failed to get current directory: %s", get_dir_err)
+    }
+
+    dirs: []string
+    defer delete(dirs)
+
+    when ODIN_OS == .Windows {
+        dirs = strings.split(full_path, "\\")
+    } else {
+        dirs = strings.split(full_path, "/")
+    }
+
+    return len(dirs) > 1 ? dirs[len(dirs) - 1] : dirs[0], ""
 }
 
 // validate_build_mode ensures that a valid build mode is passed to `rune new`.
@@ -91,20 +133,4 @@ validate_build_mode :: proc(args: []string) -> (err: string) {
     }
 
     return fmt.aprintf("%s is not supported as a build mode", args[1])
-}
-
-// validate_target ensures that a target name is provided to `rune new`.
-//
-// Parameters:
-// - args: Command-line arguments from the CLI call.
-//
-// Returns:
-// - An error message string if the target name is missing; otherwise, an empty string.
-@(private="file")
-validate_target :: proc(args: []string) -> string {
-    if len(args) < 3 {
-        return strings.clone("Please specify a target name by running \"rune new [build_mode] [target_name]\"")
-    }
-
-    return ""
 }

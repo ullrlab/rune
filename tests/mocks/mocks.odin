@@ -88,3 +88,11 @@ mock_write_entire_file_ok :: proc(path: string, data: []byte, perm: int = 0o644,
 mock_write_entire_file_err :: proc(path: string, data: []byte, perm: int = 0o644, truncate := true) -> os2.Error {
     return os2.General_Error.Exist
 }
+
+mock_get_executable_directory_WIN :: proc(allocator := context.allocator) -> (string, os2.Error) {
+    return "MOCK_DIR\\MOCK_SUBDIR", nil
+}
+
+mock_get_executable_directory_UNIX :: proc(allocator := context.allocator) -> (string, os2.Error) {
+    return "MOCK_DIR/MOCK_SUBDIR", nil
+}
