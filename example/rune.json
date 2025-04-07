@@ -24,7 +24,7 @@
 			},
 			"post_build": {
 				"copy": [
-					{ "from": "./assets", "to": "assets" }
+					{ "from": "assets", "to": "assets" }
 				],
 				"scripts": [
 					"print_after"
