@@ -9,6 +9,7 @@
 package utils
 
 import "core:fmt"
+import filepath "core:path/filepath"
 import "core:strings"
 
 import "../logger"
@@ -67,7 +68,7 @@ process_odin_cmd :: proc(
 
     // Execute post-build actions such as file copying and additional scripts
     if len(profile.post_build.copy) > 0 || len(profile.post_build.scripts) > 0 {
-        post_build_err := execute_post_build(sys, profile.post_build, scripts)
+        post_build_err := execute_post_build(sys, profile.post_build, scripts, output)
 
         if post_build_err != "" {
             return post_build_err
@@ -175,14 +176,19 @@ execute_pre_build :: proc(sys: System, step_scripts: []string, script_list: map[
 // - sys:         The system interface to handle file operations.
 // - post_build:  The post-build configuration (e.g., file copy actions and scripts).
 // - script_list: A map of predefined scripts that can be executed.
+// - output:      Output for the process_copy command
 //
 // Returns:
 // - A string containing any error message, or an empty string if successful.
 @(private="file")
-execute_post_build :: proc(sys: System, post_build: SchemaPostBuild, script_list: map[string]string) -> string {
+execute_post_build :: proc(sys: System, post_build: SchemaPostBuild, script_list: map[string]string, output: string) -> string {
     // Execute any file copy operations
     for copy in post_build.copy {
-        copy_err := process_copy(sys, copy.from, copy.from, copy.to)
+        output_dir := filepath.dir(output)
+        defer delete(output_dir)
+        output_copy_dir := filepath.join({output_dir, copy.to})
+        defer delete(output_copy_dir)
+        copy_err := process_copy(sys, copy.from, copy.from, output_copy_dir)
         if copy_err != "" {
             return copy_err
         }
