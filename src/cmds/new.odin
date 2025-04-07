@@ -88,10 +88,7 @@ parse_output_flag :: proc(sys: utils.System, args: []string) -> (string, string)
     }
 
     // If there's no -o:<target_name> flag, we get the directory name
-    full_path, get_dir_err := sys.get_executable_directory()
-    if get_dir_err != nil {
-        return "", fmt.aprintf("Failed to get current directory: %s", get_dir_err)
-    }
+    full_path := sys.get_current_directory()
 
     dirs: []string
     defer delete(dirs)

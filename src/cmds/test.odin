@@ -31,58 +31,32 @@ process_test :: proc(sys: utils.System, args: []string, schema: utils.Schema) ->
         return strings.clone("No default test profile is defined")
     }
 
-    // Process any flags (test names or file targets) provided in the arguments
-    modified_profile, flags_err := get_flags(args, profile)
-    defer delete(modified_profile.flags)
-    if flags_err != "" {
-        return flags_err
+    if len(args) >= 2 {
+        // Process any flags (test names or file targets) provided in the arguments
+        file_parse_err := parse_file_flag(args[1:], &profile)
+        if file_parse_err != "" {
+            return file_parse_err
+        }
+        test_parse_err := parse_test_flag(args[1:], &profile)
+        if test_parse_err != "" {
+            return test_parse_err
+        }
     }
 
-    // Prepare the schema for testing, using the appropriate test output path
-    modified_schema := schema
-    modified_schema.configs.output = schema.configs.test_output
+    defer {
+        for flag in profile.flags {
+            delete(flag)
+        }
+        delete(profile.flags)
+    }
 
     // Execute the test profile
-    err := utils.process_profile(sys, modified_profile, modified_schema, "test")
+    err := utils.process_profile(sys, profile, schema, "test")
     if err != "" {
         return err
     }
 
     return ""
-}
-
-// get_flags processes command-line flags passed to `rune test`, such as `-t:test_name`
-// and `-f:file_name`, and modifies the profile accordingly.
-//
-// Parameters:
-// - args:   The list of command-line arguments.
-// - profile: The profile to modify based on the flags.
-//
-// Returns:
-// - The modified profile with the flags applied.
-// - An error message if any of the flags are invalid.
-@(private="file")
-get_flags :: proc(args: []string, profile: utils.SchemaProfile) -> (new_profile: utils.SchemaProfile, err: string) {
-    new_profile = profile
-    for arg in args {
-        // Handle the -f flag for file specification
-        if strings.starts_with(arg, "-f") {
-            new_profile, err = parse_file_flag(arg, new_profile)
-            if err != "" {
-                return new_profile, err
-            }
-        }
-
-        // Handle the -t flag for test name specification
-        if strings.starts_with(arg, "-t") {
-            new_profile, err = parse_test_flag(arg, new_profile)
-            if err != "" {
-                return new_profile, err
-            }
-        }
-    }
-
-    return new_profile, ""
 }
 
 // parse_file_flag processes the `-f:file_name` flag, which specifies a particular test file
@@ -93,22 +67,28 @@ get_flags :: proc(args: []string, profile: utils.SchemaProfile) -> (new_profile:
 // - profile: The profile to modify with the file information.
 //
 // Returns:
-// - The modified profile with the new file entry.
 // - An error message if the flag is invalid or incorrectly formatted.
 @(private="file")
-parse_file_flag :: proc(arg: string, profile: utils.SchemaProfile) -> (new_profile: utils.SchemaProfile, err: string) {
-    new_profile = profile
-    args_arr := strings.split(arg, ":")
-    defer delete(args_arr)
-    if len(args_arr) != 2 {
-        return profile, fmt.aprintf("Invalid file flag %s. Make sure it is formatted -f:file_name", arg)
+parse_file_flag :: proc(args: []string, profile: ^utils.SchemaProfile) -> (string) {
+    for arg in args {
+        // Handle the -f flag for file specification
+        if strings.starts_with(arg, "-f") {
+            args_arr := strings.split(arg, ":")
+            defer delete(args_arr)
+            if len(args_arr) != 2 {
+                return fmt.aprintf("Invalid file flag %s. Make sure it is formatted -f:file_name", arg)
+            }
+
+            // Update the profile's entry with the specified file
+            profile.entry = args_arr[1]
+            _, append_err := append(&profile.flags, strings.clone("-file"))
+            if append_err != nil {
+                return fmt.aprintf("Failed to append: %s", append_err)
+            }
+        }
     }
 
-    // Update the profile's entry with the specified file
-    new_profile.entry = args_arr[1]
-    append(&new_profile.flags, "-file")
-
-    return new_profile, ""
+    return ""
 }
 
 // parse_test_flag processes the `-t:test_name` flag, which specifies a particular test to run.
@@ -118,21 +98,26 @@ parse_file_flag :: proc(arg: string, profile: utils.SchemaProfile) -> (new_profi
 // - profile: The profile to modify with the test name information.
 //
 // Returns:
-// - The modified profile with the new test flag.
 // - An error message if the flag is invalid or incorrectly formatted.
 @(private="file")
-parse_test_flag :: proc(arg: string, profile: utils.SchemaProfile) -> (new_profile: utils.SchemaProfile, err: string) {
-    new_profile = profile
-    args_arr := strings.split(arg, ":")
-    defer delete(args_arr)
-    if len(args_arr) != 2 {
-        return profile, fmt.aprintf("Invalid test name flag %s. Make sure it is formatted -t:test_name", arg)
+parse_test_flag :: proc(args: []string, profile: ^utils.SchemaProfile) -> (string) {
+    for arg in args {
+        if strings.starts_with(arg, "-t") {
+            args_arr := strings.split(arg, ":")
+            defer delete(args_arr)
+            if len(args_arr) != 2 {
+                return fmt.aprintf("Invalid test name flag %s. Make sure it is formatted -t:test_name", arg)
+            }
+
+            // Define the test names to run by adding a define flag
+            new_flag := fmt.aprintf("-define:ODIN_TEST_NAMES=%s", args_arr[1])
+            defer delete(new_flag)
+            _, append_err := append(&profile.flags, strings.clone(new_flag))
+            if append_err != nil {
+                return fmt.aprintf("Failed to append: %s", append_err)
+            }
+        }
     }
 
-    // Define the test names to run by adding a define flag
-    new_flag := fmt.aprintf("-define:ODIN_TEST_NAMES=%s", args_arr[1])
-    defer delete(new_flag)
-    append(&new_profile.flags, new_flag)
-
-    return new_profile, ""
+    return ""
 }

@@ -42,7 +42,7 @@ process_profile:: proc(
     cmd: string
 ) -> string {
 
-    output := parse_output(schema.configs, profile)
+    output := parse_output(schema.configs, profile, cmd)
     defer delete(output)
 
     output_err := create_output(sys, output)
@@ -71,14 +71,16 @@ process_profile:: proc(
 // Parameters:
 // - configs: The configuration settings for output.
 // - profile: The profile containing specific values to be used in the output template.
+// - cmd:     The command that is passed to process the profile.
 //
 // Returns:
 // - string: The parsed output path, with placeholders like "{config}", "{arch}", and "{profile}" replaced.
 @(private="file")
-parse_output :: proc(configs: SchemaConfigs, profile: SchemaProfile) -> string {
+parse_output :: proc(configs: SchemaConfigs, profile: SchemaProfile, cmd: string) -> string {
     is_debug := check_debug(profile.flags)
-    
-    output, _ := strings.replace(configs.output, "{config}", is_debug ? "debug" : "release", -1)
+    base_output := cmd == "test" ? configs.test_output : configs.output
+
+    output, _ := strings.replace(base_output, "{config}", is_debug ? "debug" : "release", -1)
     output, _ = strings.replace(output, "{arch}", profile.arch, -1)
     output, _ = strings.replace(output, "{profile}", profile.name, -1)
     

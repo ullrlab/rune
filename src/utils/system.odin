@@ -14,5 +14,5 @@ System :: struct {
     read_entire_file_from_path: proc(name: string, allocator: runtime.Allocator) -> ([]byte, os2.Error),
     write_entire_file: proc(name: string, data: []byte, perm: int = 0o644, truncate := true) -> os2.Error,
     process_exec: proc(desc: os2.Process_Desc, allocator: runtime.Allocator, loc := #caller_location) -> (os2.Process_State, []byte, []byte, os2.Error),
-    get_executable_directory: proc(allocator := context.allocator) -> (string, os2.Error)
+    get_current_directory: proc(allocator := context.allocator) -> string
 }

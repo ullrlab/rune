@@ -2,6 +2,7 @@
 package main
 
 import "core:fmt"
+import "core:os"
 import "core:os/os2"
 import "core:strings"
 import "core:time"
@@ -13,7 +14,7 @@ import "utils"
 
 main :: proc() {
     start_time := time.now()
-    version := "0.1.1"
+    version := "0.1.0"
 
     sys := utils.System {
         exists = os2.exists,
@@ -26,7 +27,7 @@ main :: proc() {
         read_entire_file_from_path = os2.read_entire_file_from_path,
         write_entire_file = os2.write_entire_file,
         process_exec = os2.process_exec,
-        get_executable_directory = os2.get_executable_directory
+        get_current_directory = os.get_current_directory
     }
 
     if len(os2.args) < 2 {
@@ -49,13 +50,9 @@ main :: proc() {
     defer delete(success)
 
     switch cmd {
-        case "--version":
+        case "-v", "--version":
             logger.info(version)
-        case "-v":
-            logger.info(version)
-        case "--help":
-            cmds.print_help()
-        case "-h":
+        case "-h", "--help":
             cmds.print_help()
         case "build":
             success, err = cmds.process_build(sys, os2.args[1:], schema)

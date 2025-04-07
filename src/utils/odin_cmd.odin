@@ -74,7 +74,7 @@ process_odin_cmd :: proc(
         }
     }
 
-    return "" // Return an empty string on success
+    return ""
 }
 
 // Executes the Odin build command with the provided build data.
@@ -143,7 +143,7 @@ execute_cmd :: proc(sys: System, data: BuildData, buildCmd: string) -> string {
         return script_err
     }
     
-    return "" // Return an empty string on success
+    return ""
 }
 
 // Executes the pre-build scripts defined in the profile.
@@ -194,7 +194,7 @@ execute_post_build :: proc(sys: System, post_build: SchemaPostBuild, script_list
         return script_err
     }
 
-    return "" // Return an empty string on success
+    return ""
 }
 
 // Executes a series of scripts.
@@ -228,5 +228,5 @@ execute_scripts :: proc(sys: System, step_scripts: []string, script_list: map[st
         }
     }
 
-    return "" // Return an empty string on success
+    return ""
 }
